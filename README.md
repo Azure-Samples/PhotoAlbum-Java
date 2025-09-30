@@ -1,221 +1,91 @@
-# PhotoAlbum
+# PhotoAlbum - Azure Migration Demo for GitHub Copilot
 
-A simple photo storage and gallery application built with ASP.NET Core Razor Pages, Entity Framework Core, and Bootstrap.
+A comprehensive demonstration project showcasing how to use **GitHub Copilot app modernization for .NET** to get your
+app prepared for Azure deployment.
 
-## Features
+## Project Overview
 
-- 📸 **Photo Upload**: Drag-and-drop or click to upload multiple photos
-- 🖼️ **Gallery View**: Responsive grid layout for browsing uploaded photos
-- � **Photo Detail View**: Click any photo to view full-size with metadata and navigation
-- �📊 **Metadata Display**: View file size, dimensions, aspect ratio, and upload timestamp
-- ⬅️➡️ **Photo Navigation**: Previous/Next buttons to browse through photos
-- ✅ **Validation**: File type and size validation (JPEG, PNG, GIF, WebP; max 10MB)
-- 🗄️ **Database Storage**: Photo metadata stored in SQL Server LocalDB
-- 🗑️ **Delete Photos**: Remove photos from both gallery and detail views
-- 🎨 **Modern UI**: Clean, responsive design with Bootstrap 5
+PhotoAlbum is an ASP.NET Core Razor Pages application designed to manage and display photo galleries. The application allows users to upload photos, store them locally, and view them in a responsive gallery interface with detailed metadata.
 
-## Prerequisites
+PhotoAlbum provides a simple photo management system, allowing users to:
+- Upload photos via drag-and-drop or file selection
+- View uploaded photos in a responsive gallery grid
+- View full-size photos with detailed metadata (dimensions, file size, aspect ratio)
+- Navigate between photos using Previous/Next controls
+- Delete photos from the gallery
+- Store photo metadata in SQL Server LocalDB
 
-- [.NET 9.0 SDK](https://dotnet.microsoft.com/download/dotnet/9.0) or later
-- SQL Server LocalDB (installed with Visual Studio or SQL Server Express)
-- A modern web browser
+## 📋 Prerequisites
 
-## Getting Started
+Before you begin, ensure you have:
 
-### 1. Clone the Repository
+- **[Visual Studio 2022](https://visualstudio.microsoft.com/)**. Ensure the installed version is equal or higher than 17.14.16. If not, install the preview version **[Microsoft Visual Studio Enterprise 2022 - Int Preview](https://aka.ms/vs/17/intpreview/vs_enterprise.exe)**. Ensure the following workloads are selected during installation
+    - ASP.NET and web development
+    - .NET desktop development
+- **[Git](https://git-scm.com/)** for version control
+- **GitHub account** with Copilot access
 
-```bash
-git clone <repository-url>
+## ⚙️ VS Configuration
+
+1. Set the environment variable `COPILOT_INTERNALUSER=true` in your system to enable the GitHub Copilot internal use features.
+1. Set the following GitHub Copilot setting in "Tools" menu --> "Options...". Search the setting from the top left search box, and update the value accordingly.
+    - `MaxFunctionCallIterations`: 100
+1. Install the App Modernization extension
+    1. Navigate to **Extensions** → **Manage Extensions**
+    1. Search for **"GitHub Copilot App Modernization for .NET"**
+    1. Click **Download**
+1. Restart Visual Studio
+1. Click the "GitHub Copilot" button on the top right of VS, and click "Open Chat Window". Sign in with your GitHub account.
+    > **NOTE**: At the bottom of the GitHub Copilot Chat window, select the mode of **Agent** and model of **Claude Sonnet 4**.
+
+## 🚀 Getting Started
+
+
+### Step 1: Clone and Open the Project
+
+```sh
+git clone https://github.com/menxiao_microsoft/PhotoAlbum.git
 cd PhotoAlbum
 ```
 
-### 2. Restore Dependencies
+Open the solution file `PhotoAlbum.sln` in Visual Studio 2022.
 
-```bash
-dotnet restore
-```
+## 🔄 Demonstration: Migrating to Azure Blob Storage
 
-### 3. Apply Database Migrations
+### Step 1: Run Assessment
 
-The application uses Entity Framework Core with SQL Server LocalDB. Migrations are applied automatically on first run, or you can apply them manually:
+1. In Visual Studio, open **GitHub Copilot Chat**
+2. Type:
+	```
+	@Modernize Migrate to Azure
+	```
+3. The extension will analyze your code and identify modernization opportunities
+4. Review the assessment report showing local file system usage
 
-```bash
-dotnet ef database update --project PhotoAlbum
-```
+### Step 2: Start Migration
 
-### 4. Run the Application
+1. In the assessment report, click **Run Task** button for the issue of **File System Management**:
 
-```bash
-cd PhotoAlbum
-dotnet run
-```
+   ![Run Task](media/run-migartion-task.png)
 
-The application will be available at `http://localhost:5000` (or `https://localhost:5001` for HTTPS).
+2. The extension will:
+   - Create a migration plan in `.appmod/.migration/plan.md`
+   - Set up progress tracking in `.appmod/.migration/progress.md`
 
-## Project Structure
+3. After the plan is created, the agent will stop to ask you to review the plan. Type "Continue" to proceed with the migration.
 
-```
-PhotoAlbum/
-├── PhotoAlbum/                 # Main web application
-│   ├── Data/                   # Database context and migrations
-│   ├── Models/                 # Domain models (Photo, UploadResult)
-│   ├── Pages/                  # Razor Pages (Index, Error, etc.)
-│   ├── Services/               # Business logic (PhotoService)
-│   ├── wwwroot/                # Static files (CSS, JS, uploaded photos)
-│   └── Program.cs              # Application startup
-├── PhotoAlbum.Tests/           # Test project
-│   ├── Unit/                   # Unit tests
-│   └── Integration/            # Integration tests
-└── PhotoAlbum.sln              # Solution file
-```
+4. During migration, the agent will call various tools and commands to execute version control and code modification, please "Allow" when the tool calls are asked.
 
-## Configuration
+4. After the code is migrated, the agent will build and validate this project, and fix if any errors are detected.
 
-Configuration is stored in `appsettings.json`:
+Some tips during the migration:
 
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=PhotoAlbumDb;..."
-  },
-  "PhotoUpload": {
-    "MaxFileSizeBytes": 10485760,
-    "AllowedMimeTypes": ["image/jpeg", "image/png", "image/gif", "image/webp"],
-    "UploadPath": "wwwroot/uploads"
-  }
-}
-```
+- After updating project related settings, it will reload the project. This is likely to bring the "Solution Explorer" view to the top, and you need to click the "GitHub Copilot Chat" view tab to bring it back and check the latest conversations.
+- If the session stop in the middle of the whole process. Try sending "Continue" in the chat box to resume.
+### Step 3: Review Migration Results
 
-### Configuration Options
-
-- **MaxFileSizeBytes**: Maximum file size in bytes (default: 10MB)
-- **AllowedMimeTypes**: Array of accepted MIME types
-- **UploadPath**: Directory for storing uploaded files (relative to project root)
-
-## Running Tests
-
-The project includes both unit tests and integration tests.
-
-### Run All Tests
-
-```bash
-dotnet test
-```
-
-### Run Unit Tests Only
-
-```bash
-dotnet test --filter Category=Unit
-```
-
-### Run Integration Tests Only
-
-```bash
-dotnet test --filter Category=Integration
-```
-
-## Development
-
-### Technology Stack
-
-- **Framework**: ASP.NET Core 9.0 (Razor Pages)
-- **Database**: SQL Server LocalDB with Entity Framework Core 9.0
-- **Testing**: xUnit with WebApplicationFactory
-- **Image Processing**: SixLabors.ImageSharp 3.1.11
-- **Frontend**: Bootstrap 5.3.0, Vanilla JavaScript
-
-### Architecture
-
-The application uses a clean architecture with separation of concerns:
-
-- **Presentation Layer**: Razor Pages (Index, Detail) and JavaScript
-- **Service Layer**: PhotoService for business logic
-- **Data Layer**: Entity Framework Core with PhotoAlbumContext
-- **Storage Abstraction**: Indirect image serving via `/photo/{id}` endpoint
-  - Frontend uses photo IDs, not file paths
-  - Enables future migration to cloud storage (Azure Blob, AWS S3, etc.)
-  - No frontend changes needed when changing storage backend
-
-See [FEATURE_INDIRECT_IMAGE_SERVING.md](FEATURE_INDIRECT_IMAGE_SERVING.md) for details on the image serving architecture.
-
-### Code Quality
-
-The project follows standard C# coding conventions and includes:
-
-- XML documentation on all public APIs
-- Comprehensive unit test coverage
-- Integration tests for page handlers
-- Consistent formatting (enforced via `dotnet format`)
-
-### Building for Release
-
-```bash
-dotnet build --configuration Release
-```
-
-### Publishing
-
-```bash
-dotnet publish --configuration Release --output ./publish
-```
-
-## Usage
-
-1. **Upload Photos**:
-   - Drag and drop one or more photos onto the upload zone
-   - Or click "Browse" to select files from your computer
-   - Supported formats: JPEG, PNG, GIF, WebP (max 10MB each)
-
-2. **View Gallery**:
-   - Uploaded photos appear in a responsive grid
-   - Each card shows the photo thumbnail, filename, dimensions, file size, and upload date
-   - Click on any photo thumbnail or filename to view it full-size
-
-3. **View Photo Details**:
-   - Click any photo to open the detail view
-   - See full-size image with comprehensive metadata
-   - Use Previous/Next buttons to navigate between photos
-   - Click "Back to Gallery" to return to the main page
-
-4. **Delete Photos**:
-   - Click the "Delete" button on the detail page to remove a photo
-   - Confirmation dialog will appear before deletion
-   - Photo is removed from both the database and file system## Troubleshooting
-
-### Database Connection Issues
-
-If you encounter database connection errors:
-
-1. Verify SQL Server LocalDB is installed:
-   ```bash
-   sqllocaldb info
-   ```
-
-2. Create a new LocalDB instance if needed:
-   ```bash
-   sqllocaldb create MSSQLLocalDB
-   sqllocaldb start MSSQLLocalDB
-   ```
-
-3. Update the connection string in `appsettings.json` if using a different instance.
-
-### Upload Directory Permissions
-
-Ensure the application has write permissions to the upload directory (`wwwroot/uploads`). The directory is created automatically on first upload if it doesn't exist.
-
-## License
-
-This project is provided as-is for educational and demonstration purposes.
-
-## Contributing
-
-Contributions are welcome! Please ensure:
-
-- All tests pass (`dotnet test`)
-- Code is properly formatted (`dotnet format`)
-- XML documentation is added for public APIs
-- New features include appropriate tests
-
-## Support
-
-For issues or questions, please open an issue in the repository.
+The extension provides comprehensive tracking:
+- ✅ **Detailed progress tracking** with checkboxes for each task
+- 🔄 **Git commits** for each major step with descriptive messages
+- 🏗️ **Build verification** to ensure compilation succeeds
+- 🔒 **Security validation** to check for vulnerabilities
