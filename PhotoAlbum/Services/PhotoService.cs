@@ -51,6 +51,22 @@ public class PhotoService : IPhotoService
     }
 
     /// <summary>
+    /// Get a specific photo by ID
+    /// </summary>
+    public async Task<Photo?> GetPhotoByIdAsync(int id)
+    {
+        try
+        {
+            return await _context.Photos.FindAsync(id);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving photo with ID {PhotoId}", id);
+            throw;
+        }
+    }
+
+    /// <summary>
     /// Upload a photo file
     /// </summary>
     public async Task<UploadResult> UploadPhotoAsync(IFormFile file)

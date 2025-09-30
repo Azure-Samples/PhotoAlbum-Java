@@ -50,7 +50,7 @@ else
             <div class="col-lg-8 mb-4">
                 <div class="card">
                     <div class="card-body p-0">
-                        <img src="@Model.Photo.FilePath"
+                        <img src="@Url.Page("/PhotoFile", new { id = Model.Photo.Id })"
                              alt="@Model.Photo.OriginalFileName"
                              class="img-fluid w-100 photo-detail-image"
                              style="max-height: 80vh; object-fit: contain; background-color: #f8f9fa;">

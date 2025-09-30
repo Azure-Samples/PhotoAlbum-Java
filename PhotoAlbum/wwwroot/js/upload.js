@@ -181,13 +181,19 @@
             ? `<span> • ${photo.width} x ${photo.height}</span>`
             : '';
 
+        // Use indirect photo URL
+        const photoUrl = `/photo/${photo.id}`;
+        const detailUrl = `/Detail/${photo.id}`;
+
         return `
             <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
                 <div class="card photo-card h-100">
-                    <img src="${photo.filePath}" class="card-img-top" alt="${photo.originalFileName}" loading="lazy">
+                    <a href="${detailUrl}" class="photo-link">
+                        <img src="${photoUrl}" class="card-img-top" alt="${photo.originalFileName}" loading="lazy">
+                    </a>
                     <div class="card-body">
                         <p class="card-text text-truncate" title="${photo.originalFileName}">
-                            <small>${photo.originalFileName}</small>
+                            <small><a href="${detailUrl}" class="text-decoration-none text-dark">${photo.originalFileName}</a></small>
                         </p>
                         <p class="card-text">
                             <small class="text-muted">${formattedDate}</small>

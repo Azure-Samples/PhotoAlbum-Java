@@ -14,6 +14,13 @@ public interface IPhotoService
     Task<List<Photo>> GetAllPhotosAsync();
 
     /// <summary>
+    /// Get a specific photo by ID
+    /// </summary>
+    /// <param name="id">Photo ID</param>
+    /// <returns>Photo if found, null otherwise</returns>
+    Task<Photo?> GetPhotoByIdAsync(int id);
+
+    /// <summary>
     /// Upload a photo file
     /// </summary>
     /// <param name="file">The uploaded file</param>

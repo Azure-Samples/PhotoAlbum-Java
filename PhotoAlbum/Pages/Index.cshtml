@@ -63,7 +63,7 @@
                 <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
                     <div class="card photo-card h-100">
                         <a asp-page="/Detail" asp-route-id="@photo.Id" class="photo-link">
-                            <img src="@photo.FilePath" class="card-img-top" alt="@photo.OriginalFileName" loading="lazy">
+                            <img src="@Url.Page("/PhotoFile", new { id = photo.Id })" class="card-img-top" alt="@photo.OriginalFileName" loading="lazy">
                         </a>
                         <div class="card-body">
                             <p class="card-text text-truncate" title="@photo.OriginalFileName">

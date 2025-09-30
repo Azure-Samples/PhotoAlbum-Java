@@ -124,6 +124,20 @@ dotnet test --filter Category=Integration
 - **Image Processing**: SixLabors.ImageSharp 3.1.11
 - **Frontend**: Bootstrap 5.3.0, Vanilla JavaScript
 
+### Architecture
+
+The application uses a clean architecture with separation of concerns:
+
+- **Presentation Layer**: Razor Pages (Index, Detail) and JavaScript
+- **Service Layer**: PhotoService for business logic
+- **Data Layer**: Entity Framework Core with PhotoAlbumContext
+- **Storage Abstraction**: Indirect image serving via `/photo/{id}` endpoint
+  - Frontend uses photo IDs, not file paths
+  - Enables future migration to cloud storage (Azure Blob, AWS S3, etc.)
+  - No frontend changes needed when changing storage backend
+
+See [FEATURE_INDIRECT_IMAGE_SERVING.md](FEATURE_INDIRECT_IMAGE_SERVING.md) for details on the image serving architecture.
+
 ### Code Quality
 
 The project follows standard C# coding conventions and includes:
