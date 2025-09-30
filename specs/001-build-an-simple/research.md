@@ -1,7 +1,7 @@
 # Research: Photo Storage Application
 
-**Feature**: Photo Storage Application  
-**Date**: 2025-09-30  
+**Feature**: Photo Storage Application
+**Date**: 2025-09-30
 **Status**: Complete
 
 ---
@@ -12,7 +12,7 @@
 
 **Decision**: Support JPEG, PNG, GIF, and WebP formats
 
-**Rationale**: 
+**Rationale**:
 - JPEG and PNG are the most common photo formats across all devices and cameras
 - GIF support allows for animated images, which users may want to store
 - WebP is increasingly common from modern devices and offers better compression

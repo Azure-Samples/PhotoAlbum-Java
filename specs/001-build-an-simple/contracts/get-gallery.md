@@ -1,17 +1,17 @@
 # API Contract: Get Photo Gallery
 
-**Endpoint**: `GET /`  
-**Handler**: `Pages/Index.cshtml.cs` → `OnGetAsync()`  
+**Endpoint**: `GET /`
+**Handler**: `Pages/Index.cshtml.cs` → `OnGetAsync()`
 **Purpose**: Retrieve all photos for display in gallery
 
 ---
 
 ## Request
 
-**Method**: GET  
-**Path**: `/`  
-**Query Parameters**: None (pagination not implemented in v1)  
-**Headers**: 
+**Method**: GET
+**Path**: `/`
+**Query Parameters**: None (pagination not implemented in v1)
+**Headers**:
 - `Accept: text/html`
 
 **Authentication**: None (demo application)
@@ -29,7 +29,7 @@
 public class IndexModel : PageModel
 {
     public List<Photo> Photos { get; set; }
-    
+
     public async Task OnGetAsync()
     {
         Photos = await _photoService.GetAllPhotosAsync();

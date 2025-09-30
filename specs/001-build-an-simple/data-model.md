@@ -1,7 +1,7 @@
 # Data Model: Photo Storage Application
 
-**Feature**: Photo Storage Application  
-**Date**: 2025-09-30  
+**Feature**: Photo Storage Application
+**Date**: 2025-09-30
 **Source**: Feature spec entities + research decisions
 
 ---

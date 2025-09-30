@@ -1,7 +1,7 @@
 # Quickstart: Photo Storage Application
 
-**Purpose**: Verify the photo storage application works end-to-end  
-**Time**: ~5 minutes  
+**Purpose**: Verify the photo storage application works end-to-end
+**Time**: ~5 minutes
 **Prerequisites**: .NET 8 SDK, SQL Server LocalDB (included with Visual Studio)
 
 ---
@@ -82,7 +82,7 @@ info: Microsoft.Hosting.Lifetime[0]
 **Validation**:
 ```sql
 -- Database should be empty
-SELECT COUNT(*) FROM Photos; 
+SELECT COUNT(*) FROM Photos;
 -- Expected: 0
 ```
 
@@ -111,7 +111,7 @@ SELECT COUNT(*) FROM Photos;
 **Validation**:
 ```sql
 -- Database should have 1 photo
-SELECT OriginalFileName, StoredFileName, FileSize, MimeType, UploadedAt 
+SELECT OriginalFileName, StoredFileName, FileSize, MimeType, UploadedAt
 FROM Photos;
 -- Expected: 1 row with correct metadata
 ```
@@ -148,8 +148,8 @@ SELECT COUNT(*) FROM Photos;
 -- Expected: 6 (1 from previous test + 5 new)
 
 -- Check order
-SELECT OriginalFileName, UploadedAt 
-FROM Photos 
+SELECT OriginalFileName, UploadedAt
+FROM Photos
 ORDER BY UploadedAt DESC;
 -- Expected: Newest uploads at top
 ```

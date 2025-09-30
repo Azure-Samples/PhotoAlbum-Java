@@ -1,15 +1,15 @@
 # API Contract: Upload Photos
 
-**Endpoint**: `POST /Upload`  
-**Handler**: `Pages/Index.cshtml.cs` → `OnPostUploadAsync()`  
+**Endpoint**: `POST /Upload`
+**Handler**: `Pages/Index.cshtml.cs` → `OnPostUploadAsync()`
 **Purpose**: Upload one or more photos via drag-and-drop or file picker
 
 ---
 
 ## Request
 
-**Method**: POST  
-**Path**: `/Upload`  
+**Method**: POST
+**Path**: `/Upload`
 **Content-Type**: `multipart/form-data`
 
 **Form Fields**:
@@ -26,7 +26,7 @@
 - size: <= 10MB (10,485,760 bytes)
 ```
 
-**Authentication**: None (demo application)  
+**Authentication**: None (demo application)
 **CSRF Protection**: `[ValidateAntiForgeryToken]` required
 
 ---
@@ -191,19 +191,19 @@ public async Task<IActionResult> OnPostUploadAsync(List<IFormFile> files)
         }
         else
         {
-            failedUploads.Add(new UploadError 
-            { 
-                FileName = file.FileName, 
-                Error = result.ErrorMessage 
+            failedUploads.Add(new UploadError
+            {
+                FileName = file.FileName,
+                Error = result.ErrorMessage
             });
         }
     }
 
-    return new JsonResult(new 
-    { 
-        success = uploadedPhotos.Any(), 
-        uploadedPhotos, 
-        failedUploads 
+    return new JsonResult(new
+    {
+        success = uploadedPhotos.Any(),
+        uploadedPhotos,
+        failedUploads
     });
 }
 ```
@@ -219,25 +219,25 @@ const dropZone = document.getElementById('drop-zone');
 dropZone.addEventListener('drop', async (e) => {
     e.preventDefault();
     const files = Array.from(e.dataTransfer.files);
-    
+
     // Client-side validation
     const validFiles = files.filter(file => {
-        return file.type.match(/^image\/(jpeg|png|gif|webp)$/) 
+        return file.type.match(/^image\/(jpeg|png|gif|webp)$/)
             && file.size <= 10485760;
     });
-    
+
     if (validFiles.length === 0) {
         showError('No valid image files found');
         return;
     }
-    
+
     // Create FormData
     const formData = new FormData();
     validFiles.forEach(file => formData.append('files', file));
-    
+
     // Add anti-forgery token
     const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
-    
+
     // Upload
     const response = await fetch('/Upload', {
         method: 'POST',
@@ -247,13 +247,13 @@ dropZone.addEventListener('drop', async (e) => {
             'RequestVerificationToken': token
         }
     });
-    
+
     const result = await response.json();
-    
+
     if (result.success) {
         displayPhotos(result.uploadedPhotos);
     }
-    
+
     if (result.failedUploads.length > 0) {
         showWarnings(result.failedUploads);
     }
