@@ -148,21 +148,22 @@
             alertInfo.remove();
         }
 
+        // Get the current gallery element (may have been created dynamically)
+        let galleryElement = document.getElementById('photo-gallery');
+
         // Create gallery if it doesn't exist
-        if (!photoGallery) {
+        if (!galleryElement) {
             const gallerySection = document.getElementById('gallery-section');
-            const newGallery = document.createElement('div');
-            newGallery.className = 'row';
-            newGallery.id = 'photo-gallery';
-            gallerySection.appendChild(newGallery);
+            galleryElement = document.createElement('div');
+            galleryElement.className = 'row';
+            galleryElement.id = 'photo-gallery';
+            gallerySection.appendChild(galleryElement);
         }
 
         // Add photos to the beginning of the gallery
         photos.forEach(photo => {
             const photoCard = createPhotoCard(photo);
-            if (photoGallery) {
-                photoGallery.insertAdjacentHTML('afterbegin', photoCard);
-            }
+            galleryElement.insertAdjacentHTML('afterbegin', photoCard);
         });
     }
 

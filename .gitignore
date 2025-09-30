@@ -240,3 +240,5 @@ MigrationBackup/
 # Uploaded photos - exclude from git but keep directory
 PhotoAlbum/wwwroot/uploads/*
 !PhotoAlbum/wwwroot/uploads/.gitkeep
+
+/.appmod/
