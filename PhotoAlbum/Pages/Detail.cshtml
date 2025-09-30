@@ -1,0 +1,171 @@
+@page "{id:int?}"
+@model DetailModel
+@{
+    ViewData["Title"] = Model.Photo?.OriginalFileName ?? "Photo Detail";
+}
+
+@if (Model.Photo == null)
+{
+    <div class="alert alert-warning">
+        <h4>Photo not found</h4>
+        <p>The photo you're looking for doesn't exist or has been deleted.</p>
+        <a asp-page="/Index" class="btn btn-primary">Back to Gallery</a>
+    </div>
+}
+else
+{
+    <div class="photo-detail-container">
+        <!-- Header with back button -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <a asp-page="/Index" class="btn btn-outline-secondary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                </svg>
+                Back to Gallery
+            </a>
+
+            <form method="post" asp-page-handler="Delete" asp-route-id="@Model.Photo.Id"
+                  onsubmit="return confirm('Are you sure you want to delete this photo?');">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-danger">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                        <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                    </svg>
+                    Delete
+                </button>
+            </form>
+        </div>
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @TempData["Error"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <!-- Main photo display -->
+        <div class="row">
+            <div class="col-lg-8 mb-4">
+                <div class="card">
+                    <div class="card-body p-0">
+                        <img src="@Model.Photo.FilePath"
+                             alt="@Model.Photo.OriginalFileName"
+                             class="img-fluid w-100 photo-detail-image"
+                             style="max-height: 80vh; object-fit: contain; background-color: #f8f9fa;">
+                    </div>
+                </div>
+
+                <!-- Navigation buttons -->
+                <div class="d-flex justify-content-between mt-3">
+                    @if (Model.PreviousPhotoId.HasValue)
+                    {
+                        <a asp-page="/Detail" asp-route-id="@Model.PreviousPhotoId" class="btn btn-outline-primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
+                            </svg>
+                            Previous Photo
+                        </a>
+                    }
+                    else
+                    {
+                        <div></div>
+                    }
+
+                    @if (Model.NextPhotoId.HasValue)
+                    {
+                        <a asp-page="/Detail" asp-route-id="@Model.NextPhotoId" class="btn btn-outline-primary">
+                            Next Photo
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-right" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+                            </svg>
+                        </a>
+                    }
+                </div>
+            </div>
+
+            <!-- Photo information sidebar -->
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Photo Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <dl class="row mb-0">
+                            <dt class="col-sm-5">Filename:</dt>
+                            <dd class="col-sm-7 text-break">@Model.Photo.OriginalFileName</dd>
+
+                            <dt class="col-sm-5">Uploaded:</dt>
+                            <dd class="col-sm-7">@Model.Photo.UploadedAt.ToLocalTime().ToString("MMM dd, yyyy")<br/>
+                                <small class="text-muted">@Model.Photo.UploadedAt.ToLocalTime().ToString("h:mm:ss tt")</small>
+                            </dd>
+
+                            <dt class="col-sm-5">File Size:</dt>
+                            <dd class="col-sm-7">
+                                @if (Model.Photo.FileSize < 1024)
+                                {
+                                    <text>@Model.Photo.FileSize bytes</text>
+                                }
+                                else if (Model.Photo.FileSize < 1024 * 1024)
+                                {
+                                    <text>@((Model.Photo.FileSize / 1024.0).ToString("F2")) KB</text>
+                                }
+                                else
+                                {
+                                    <text>@((Model.Photo.FileSize / (1024.0 * 1024.0)).ToString("F2")) MB</text>
+                                }
+                            </dd>
+
+                            @if (Model.Photo.Width.HasValue && Model.Photo.Height.HasValue)
+                            {
+                                <dt class="col-sm-5">Dimensions:</dt>
+                                <dd class="col-sm-7">@Model.Photo.Width x @Model.Photo.Height px</dd>
+
+                                <dt class="col-sm-5">Aspect Ratio:</dt>
+                                <dd class="col-sm-7">
+                                    @{
+                                        var gcd = GCD(Model.Photo.Width.Value, Model.Photo.Height.Value);
+                                        var aspectWidth = Model.Photo.Width.Value / gcd;
+                                        var aspectHeight = Model.Photo.Height.Value / gcd;
+                                    }
+                                    @aspectWidth:@aspectHeight
+                                    @if (Math.Abs((double)Model.Photo.Width.Value / Model.Photo.Height.Value - 16.0/9.0) < 0.1)
+                                    {
+                                        <small class="text-muted">(16:9)</small>
+                                    }
+                                    else if (Math.Abs((double)Model.Photo.Width.Value / Model.Photo.Height.Value - 4.0/3.0) < 0.1)
+                                    {
+                                        <small class="text-muted">(4:3)</small>
+                                    }
+                                    else if (Math.Abs((double)Model.Photo.Width.Value / Model.Photo.Height.Value - 1.0) < 0.05)
+                                    {
+                                        <small class="text-muted">(Square)</small>
+                                    }
+                                </dd>
+                            }
+
+                            <dt class="col-sm-5">Type:</dt>
+                            <dd class="col-sm-7">
+                                <span class="badge bg-secondary">@Model.Photo.MimeType</span>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@functions {
+    private int GCD(int a, int b)
+    {
+        while (b != 0)
+        {
+            int temp = b;
+            b = a % b;
+            a = temp;
+        }
+        return a;
+    }
+}

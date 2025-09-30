@@ -6,9 +6,12 @@ A simple photo storage and gallery application built with ASP.NET Core Razor Pag
 
 - 📸 **Photo Upload**: Drag-and-drop or click to upload multiple photos
 - 🖼️ **Gallery View**: Responsive grid layout for browsing uploaded photos
-- 📊 **Metadata Display**: View file size, dimensions, and upload timestamp for each photo
+- � **Photo Detail View**: Click any photo to view full-size with metadata and navigation
+- �📊 **Metadata Display**: View file size, dimensions, aspect ratio, and upload timestamp
+- ⬅️➡️ **Photo Navigation**: Previous/Next buttons to browse through photos
 - ✅ **Validation**: File type and size validation (JPEG, PNG, GIF, WebP; max 10MB)
 - 🗄️ **Database Storage**: Photo metadata stored in SQL Server LocalDB
+- 🗑️ **Delete Photos**: Remove photos from both gallery and detail views
 - 🎨 **Modern UI**: Clean, responsive design with Bootstrap 5
 
 ## Prerequisites
@@ -152,11 +155,18 @@ dotnet publish --configuration Release --output ./publish
 2. **View Gallery**:
    - Uploaded photos appear in a responsive grid
    - Each card shows the photo thumbnail, filename, dimensions, file size, and upload date
+   - Click on any photo thumbnail or filename to view it full-size
 
-3. **Delete Photos**:
-   - Click the "Delete" button on any photo card to remove it from the gallery and database
+3. **View Photo Details**:
+   - Click any photo to open the detail view
+   - See full-size image with comprehensive metadata
+   - Use Previous/Next buttons to navigate between photos
+   - Click "Back to Gallery" to return to the main page
 
-## Troubleshooting
+4. **Delete Photos**:
+   - Click the "Delete" button on the detail page to remove a photo
+   - Confirmation dialog will appear before deletion
+   - Photo is removed from both the database and file system## Troubleshooting
 
 ### Database Connection Issues
 

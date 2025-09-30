@@ -62,7 +62,6 @@ body {
 /* Photo Card Styles */
 .photo-card {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-  cursor: pointer;
 }
 
 .photo-card:hover {
@@ -74,10 +73,50 @@ body {
   height: 200px;
   object-fit: cover;
   object-position: center;
+  transition: opacity 0.2s ease;
+}
+
+.photo-link {
+  display: block;
+  overflow: hidden;
+  text-decoration: none;
+}
+
+.photo-link:hover img {
+  opacity: 0.9;
 }
 
 .card-body {
   padding: 1rem;
+}
+
+/* Photo Detail Page Styles */
+.photo-detail-container {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.photo-detail-image {
+  border-radius: 0.25rem;
+}
+
+dl dt {
+  font-weight: 600;
+  color: #495057;
+}
+
+dl dd {
+  margin-bottom: 0.75rem;
 }
 
 /* Upload Feedback */
