@@ -19,7 +19,7 @@ PhotoAlbum provides a simple photo management system, allowing users to:
 
 Before you begin, ensure you have:
 
-- **[Visual Studio 2022](https://visualstudio.microsoft.com/)**. Ensure the installed version is equal or higher than 17.14.16. If not, install the preview version **[Microsoft Visual Studio Enterprise 2022 - Int Preview](https://aka.ms/vs/17/intpreview/vs_enterprise.exe)**. Ensure the following workloads are selected during installation
+- **[Visual Studio 2022 Preview](https://aka.ms/vs/17/int.d17.14/vs_enterprise.exe)** for the in-box experience. Ensure the following workloads are selected during installation
     - ASP.NET and web development
     - .NET desktop development
 - **[Git](https://git-scm.com/)** for version control
@@ -30,11 +30,6 @@ Before you begin, ensure you have:
 1. Set the environment variable `COPILOT_INTERNALUSER=true` in your system to enable the GitHub Copilot internal use features.
 1. Set the following GitHub Copilot setting in "Tools" menu --> "Options...". Search the setting from the top left search box, and update the value accordingly.
     - `MaxFunctionCallIterations`: 100
-1. Install the App Modernization extension
-    1. Navigate to **Extensions** → **Manage Extensions**
-    1. Search for **"GitHub Copilot App Modernization for .NET"**
-    1. Click **Download**
-1. Restart Visual Studio
 1. Click the "GitHub Copilot" button on the top right of VS, and click "Open Chat Window". Sign in with your GitHub account.
     > **NOTE**: At the bottom of the GitHub Copilot Chat window, select the mode of **Agent** and model of **Claude Sonnet 4**.
 
