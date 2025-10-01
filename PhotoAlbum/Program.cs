@@ -31,17 +31,21 @@ if (!Directory.Exists(uploadsPath))
     Directory.CreateDirectory(uploadsPath);
 }
 
-// Run database migrations in development
-if (app.Environment.IsDevelopment())
+// Run database migrations on startup in all environments (skip only when flagged as test)
+var isTestEnvironment = app.Configuration.GetValue<bool>("IsTestEnvironment");
+if (!isTestEnvironment)
 {
-    // Skip migrations if we're in a test environment (WebApplicationFactory sets this)
-    var isTestEnvironment = app.Configuration.GetValue<bool>("IsTestEnvironment");
-
-    if (!isTestEnvironment)
+    try
     {
         using var scope = app.Services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<PhotoAlbumContext>();
         await context.Database.MigrateAsync();
+    }
+    catch (Exception ex)
+    {
+        // Log and rethrow to fail fast if migrations cannot be applied
+        Console.WriteLine($"Database migration failed: {ex}");
+        throw;
     }
 }
 
