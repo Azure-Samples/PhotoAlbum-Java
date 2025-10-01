@@ -242,3 +242,6 @@ PhotoAlbum/wwwroot/uploads/*
 !PhotoAlbum/wwwroot/uploads/.gitkeep
 
 /.appmod/
+
+# Environment variables
+.env
