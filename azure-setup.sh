@@ -203,3 +203,17 @@ echo -e "${YELLOW}Save these credentials securely!${NC}"
 echo ""
 echo -e "${GREEN}=== Resource Group Name ===${NC}"
 echo -e "${GREEN}$RESOURCE_GROUP${NC}"
+
+# Write resource details to .env file
+echo -e "${YELLOW}Writing configuration to .env file...${NC}"
+cat > .env << EOF
+RESOURCE_GROUP=$RESOURCE_GROUP
+SQL_DATABASE_NAME=$SQL_DATABASE_NAME
+SQL_SERVER_NAME=$SQL_SERVER_NAME
+STORAGE_ACCOUNT_NAME=$STORAGE_ACCOUNT_NAME
+ACR_NAME=$ACR_NAME
+ACR_LOGIN_SERVER=$ACR_LOGIN_SERVER
+ACA_NAME=$ACA_NAME
+EOF
+
+echo -e "${GREEN}Configuration written to .env${NC}"
