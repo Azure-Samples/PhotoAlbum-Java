@@ -45,11 +45,14 @@ az acr create \
   --sku Basic \
   --admin-enabled true
 
+# Wait a few seconds for ACR to be fully provisioned
+sleep 5
+
 # Get ACR credentials for local push
 echo -e "${YELLOW}Retrieving ACR credentials...${NC}"
-ACR_USERNAME=$(az acr credential show --name $ACR_NAME --resource-group $RESOURCE_GROUP --query "username" -o tsv)
-ACR_PASSWORD=$(az acr credential show --name $ACR_NAME --resource-group $RESOURCE_GROUP --query "passwords[0].value" -o tsv)
-ACR_LOGIN_SERVER=$(az acr show --name $ACR_NAME --resource-group $RESOURCE_GROUP --query "loginServer" -o tsv)
+ACR_USERNAME=$(az acr credential show --name $ACR_NAME --resource-group $RESOURCE_GROUP --query "username" -o tsv | tr -d '\r')
+ACR_PASSWORD=$(az acr credential show --name $ACR_NAME --resource-group $RESOURCE_GROUP --query "passwords[0].value" -o tsv | tr -d '\r')
+ACR_LOGIN_SERVER=$(az acr show --name $ACR_NAME --resource-group $RESOURCE_GROUP --query "loginServer" -o tsv | tr -d '\r')
 
 echo -e "${GREEN}ACR Login Server: $ACR_LOGIN_SERVER${NC}"
 echo -e "${GREEN}ACR Username: $ACR_USERNAME${NC}"
@@ -74,7 +77,7 @@ echo -e "${YELLOW}Retrieving Container App Managed Identity...${NC}"
 ACA_PRINCIPAL_ID=$(az containerapp show \
   --name $ACA_NAME \
   --resource-group $RESOURCE_GROUP \
-  --query "identity.principalId" -o tsv)
+  --query "identity.principalId" -o tsv | tr -d '\r')
 
 echo -e "${GREEN}Container App Managed Identity Principal ID: $ACA_PRINCIPAL_ID${NC}"
 
@@ -84,7 +87,7 @@ sleep 30
 
 # Configure ACR to allow pull from Container App MI
 echo -e "${YELLOW}Granting AcrPull role to Container App MI on ACR...${NC}"
-ACR_ID=$(az acr show --name $ACR_NAME --resource-group $RESOURCE_GROUP --query "id" -o tsv)
+ACR_ID=$(az acr show --name $ACR_NAME --resource-group $RESOURCE_GROUP --query "id" -o tsv | tr -d '\r')
 az role assignment create \
   --assignee $ACA_PRINCIPAL_ID \
   --role "AcrPull" \
@@ -149,7 +152,7 @@ az storage account update \
 STORAGE_ACCOUNT_ID=$(az storage account show \
   --name $STORAGE_ACCOUNT_NAME \
   --resource-group $RESOURCE_GROUP \
-  --query "id" -o tsv)
+  --query "id" -o tsv | tr -d '\r')
 
 # Grant Contributor role to Container App MI on Storage Account
 echo -e "${YELLOW}Granting Contributor role to Container App MI on Storage Account...${NC}"
@@ -170,7 +173,7 @@ echo -e "${YELLOW}Creating blob container 'photos'...${NC}"
 STORAGE_ACCOUNT_KEY=$(az storage account keys list \
   --account-name $STORAGE_ACCOUNT_NAME \
   --resource-group $RESOURCE_GROUP \
-  --query "[0].value" -o tsv)
+  --query "[0].value" -o tsv | tr -d '\r')
 
 az storage container create \
   --name photos \

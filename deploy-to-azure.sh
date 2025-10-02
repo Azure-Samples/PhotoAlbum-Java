@@ -39,11 +39,11 @@ fi
 # Get resources from the resource group
 echo -e "${YELLOW}Retrieving Azure resources...${NC}"
 
-ACR_NAME=$(az acr list --resource-group $RESOURCE_GROUP --query "[0].name" -o tsv)
-ACA_NAME=$(az containerapp list --resource-group $RESOURCE_GROUP --query "[0].name" -o tsv)
-SQL_SERVER_NAME=$(az sql server list --resource-group $RESOURCE_GROUP --query "[0].name" -o tsv)
-SQL_DATABASE_NAME=$(az sql db list --resource-group $RESOURCE_GROUP --server $SQL_SERVER_NAME --query "[0].name" -o tsv)
-STORAGE_ACCOUNT_NAME=$(az storage account list --resource-group $RESOURCE_GROUP --query "[0].name" -o tsv)
+ACR_NAME=$(az acr list --resource-group $RESOURCE_GROUP --query "[0].name" -o tsv | tr -d '\r')
+ACA_NAME=$(az containerapp list --resource-group $RESOURCE_GROUP --query "[0].name" -o tsv | tr -d '\r')
+SQL_SERVER_NAME=$(az sql server list --resource-group $RESOURCE_GROUP --query "[0].name" -o tsv | tr -d '\r')
+SQL_DATABASE_NAME=$(az sql db list --resource-group $RESOURCE_GROUP --server $SQL_SERVER_NAME --query "[?name!='master'] | [0].name" -o tsv | tr -d '\r')
+STORAGE_ACCOUNT_NAME=$(az storage account list --resource-group $RESOURCE_GROUP --query "[0].name" -o tsv | tr -d '\r')
 
 if [ -z "$ACR_NAME" ] || [ -z "$ACA_NAME" ] || [ -z "$SQL_SERVER_NAME" ] || [ -z "$STORAGE_ACCOUNT_NAME" ]; then
   echo -e "${RED}Error: Could not find all required resources in resource group${NC}"
@@ -58,8 +58,15 @@ echo -e "  SQL Database: $SQL_DATABASE_NAME"
 echo -e "  Storage Account: $STORAGE_ACCOUNT_NAME"
 
 # Get ACR login server
-ACR_LOGIN_SERVER=$(az acr show --name $ACR_NAME --resource-group $RESOURCE_GROUP --query "loginServer" -o tsv)
-IMAGE_NAME="$ACR_LOGIN_SERVER/photoalbum:latest"
+ACR_LOGIN_SERVER=$(az acr show --name $ACR_NAME --resource-group $RESOURCE_GROUP --query "loginServer" -o tsv | tr -d '\r')
+
+# Generate unique image tag
+TIMESTAMP=$(date +%m%d%H%M%S)
+RANDOM_STR=$(openssl rand -hex 3)
+IMAGE_TAG="v${TIMESTAMP}-${RANDOM_STR}"
+IMAGE_NAME="$ACR_LOGIN_SERVER/photoalbum:$IMAGE_TAG"
+
+echo -e "${GREEN}Using image tag: $IMAGE_TAG${NC}"
 
 echo ""
 echo -e "${YELLOW}Building and pushing Docker image...${NC}"
@@ -99,13 +106,13 @@ az acr login --name $ACR_NAME
 docker push $IMAGE_NAME
 
 # Get SQL Server FQDN
-SQL_SERVER_FQDN=$(az sql server show --name $SQL_SERVER_NAME --resource-group $RESOURCE_GROUP --query "fullyQualifiedDomainName" -o tsv)
+SQL_SERVER_FQDN=$(az sql server show --name $SQL_SERVER_NAME --resource-group $RESOURCE_GROUP --query "fullyQualifiedDomainName" -o tsv | tr -d '\r')
 
 # Build connection string (using Managed Identity for authentication)
 CONNECTION_STRING="Server=tcp:${SQL_SERVER_FQDN},1433;Initial Catalog=${SQL_DATABASE_NAME};Authentication=Active Directory Default;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
 
 # Get Storage Account endpoint
-STORAGE_ACCOUNT_ENDPOINT=$(az storage account show --name $STORAGE_ACCOUNT_NAME --resource-group $RESOURCE_GROUP --query "primaryEndpoints.blob" -o tsv)
+STORAGE_ACCOUNT_ENDPOINT=$(az storage account show --name $STORAGE_ACCOUNT_NAME --resource-group $RESOURCE_GROUP --query "primaryEndpoints.blob" -o tsv | tr -d '\r')
 
 # Get Container App Managed Identity Principal ID
 echo -e "${YELLOW}Retrieving Container App Managed Identity...${NC}"
@@ -116,7 +123,7 @@ ACA_PRINCIPAL_ID=$(az containerapp show \
 
 # Grant AcrPull role to Container App MI on ACR if not already granted
 echo -e "${YELLOW}Verifying ACR pull permissions...${NC}"
-ACR_ID=$(az acr show --name $ACR_NAME --resource-group $RESOURCE_GROUP --query "id" -o tsv)
+ACR_ID=$(az acr show --name $ACR_NAME --resource-group $RESOURCE_GROUP --query "id" -o tsv | tr -d '\r')
 if ! az role assignment list --assignee $ACA_PRINCIPAL_ID --scope $ACR_ID --query "[?roleDefinitionName=='AcrPull']" -o tsv | grep -q "AcrPull"; then
   echo -e "${YELLOW}Granting AcrPull role to Container App MI...${NC}"
   az role assignment create \
@@ -154,8 +161,8 @@ az containerapp update \
   --image $IMAGE_NAME \
   --set-env-vars \
     "ConnectionStrings__DefaultConnection=$CONNECTION_STRING" \
-    "AzureStorage__BlobServiceUri=$STORAGE_ACCOUNT_ENDPOINT" \
-    "AzureStorage__ContainerName=photos" \
+    "AzureStorageBlob__Endpoint=$STORAGE_ACCOUNT_ENDPOINT" \
+    "AzureStorageBlob__ContainerName=photos" \
     "ASPNETCORE_ENVIRONMENT=Production" \
   --cpu 0.5 \
   --memory 1Gi \
@@ -163,7 +170,7 @@ az containerapp update \
   --max-replicas 3
 
 # Get Container App URL
-ACA_URL=$(az containerapp show --name $ACA_NAME --resource-group $RESOURCE_GROUP --query "properties.configuration.ingress.fqdn" -o tsv)
+ACA_URL=$(az containerapp show --name $ACA_NAME --resource-group $RESOURCE_GROUP --query "properties.configuration.ingress.fqdn" -o tsv | tr -d '\r')
 
 echo ""
 echo -e "${GREEN}=== Deployment Complete ===${NC}"
