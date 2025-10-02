@@ -1,0 +1,28 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+
+name: photoalbum
+metadata:
+  template: photoalbum-containerapp
+
+services:
+  web:
+    project: ./PhotoAlbum
+    language: dotnet
+    host: containerapp
+    docker:
+      path: ./Dockerfile
+      context: .
+    hooks:
+      postdeploy:
+        posix:
+          shell: sh
+          run: |
+            echo "Database migrations will run automatically when the app starts"
+            echo "If you need to run migrations manually, use:"
+            echo "  az containerapp exec --name \${AZURE_CONTAINERAPP_NAME} --resource-group \${AZURE_RESOURCE_GROUP} --command \"dotnet ef database update\""
+        windows:
+          shell: pwsh
+          run: |
+            Write-Host "Database migrations will run automatically when the app starts"
+            Write-Host "If you need to run migrations manually, use:"
+            Write-Host "  az containerapp exec --name `$env:AZURE_CONTAINERAPP_NAME --resource-group `$env:AZURE_RESOURCE_GROUP --command `"dotnet ef database update`""
