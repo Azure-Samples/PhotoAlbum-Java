@@ -1,21 +1,18 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using PhotoAlbum.Services;
-using Azure.Storage.Blobs;
-using Azure.Identity;
 
 namespace PhotoAlbum.Pages;
 
 /// <summary>
-/// Page model for serving photo files from Azure Blob Storage
+/// Page model for serving photo files with indirect access
 /// </summary>
 public class PhotoFileModel : PageModel
 {
     private readonly IPhotoService _photoService;
     private readonly ILogger<PhotoFileModel> _logger;
     private readonly IConfiguration _configuration;
-    private readonly BlobServiceClient _blobServiceClient;
-    private readonly string _containerName;
+    private readonly string _uploadPath;
 
     /// <summary>
     /// Initializes a new instance of the PhotoFileModel class
@@ -29,20 +26,11 @@ public class PhotoFileModel : PageModel
         _configuration = configuration;
         _logger = logger;
 
-        // Initialize Azure Blob Storage client
-        var endpoint = _configuration["AzureStorageBlob:Endpoint"];
-        if (!string.IsNullOrEmpty(endpoint))
-        {
-            _blobServiceClient = new BlobServiceClient(
-                new Uri(endpoint),
-                new DefaultAzureCredential());
-        }
-
-        _containerName = _configuration["AzureStorageBlob:ContainerName"] ?? "photos";
+        _uploadPath = _configuration["FileUpload:UploadPath"] ?? "wwwroot/uploads";
     }
 
     /// <summary>
-    /// Serves a photo file by ID from Azure Blob Storage
+    /// Serves a photo file by ID
     /// </summary>
     /// <param name="id">The ID of the photo to serve</param>
     /// <returns>File result with the photo, or NotFound if photo doesn't exist</returns>
@@ -52,12 +40,6 @@ public class PhotoFileModel : PageModel
         {
             _logger.LogWarning("Photo file request with null ID");
             return NotFound();
-        }
-
-        if (_blobServiceClient == null)
-        {
-            _logger.LogError("Azure Blob Storage client not configured");
-            return StatusCode(500);
         }
 
         try
@@ -70,38 +52,28 @@ public class PhotoFileModel : PageModel
                 return NotFound();
             }
 
-            // Download blob content from Azure Storage
-            try
+            // Construct the physical file path
+            // photo.FilePath is stored as "/uploads/filename.jpg"
+            // We need to read from "wwwroot/uploads/filename.jpg"
+            var fileName = Path.GetFileName(photo.FilePath);
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), _uploadPath, fileName);
+
+            if (!System.IO.File.Exists(filePath))
             {
-                var containerClient = _blobServiceClient.GetBlobContainerClient(_containerName);
-                var blobClient = containerClient.GetBlobClient(photo.StoredFileName);
-
-                // Check if blob exists
-                var existsResponse = await blobClient.ExistsAsync();
-                if (!existsResponse.Value)
-                {
-                    _logger.LogError("Blob {BlobName} not found for photo ID {PhotoId}", photo.StoredFileName, id);
-                    return NotFound();
-                }
-
-                // Download blob content
-                var downloadResponse = await blobClient.DownloadContentAsync();
-                var fileBytes = downloadResponse.Value.Content.ToArray();
-
-                _logger.LogDebug("Serving photo ID {PhotoId} ({FileName}, {FileSize} bytes) from blob {BlobName}",
-                    id, photo.OriginalFileName, fileBytes.Length, photo.StoredFileName);
-
-                // Return the file with appropriate content type and enable caching
-                Response.Headers.CacheControl = "public,max-age=31536000"; // Cache for 1 year
-                Response.Headers.ETag = $"\"{photo.Id}-{photo.UploadedAt.Ticks}\"";
-
-                return File(fileBytes, photo.MimeType);
+                _logger.LogError("Physical file not found for photo ID {PhotoId} at path {FilePath}", id, filePath);
+                return NotFound();
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error downloading blob {BlobName} for photo ID {PhotoId}", photo.StoredFileName, id);
-                return StatusCode(500);
-            }
+
+            var fileBytes = await System.IO.File.ReadAllBytesAsync(filePath);
+
+            _logger.LogDebug("Serving photo ID {PhotoId} ({FileName}, {FileSize} bytes)",
+                id, photo.OriginalFileName, fileBytes.Length);
+
+            // Return the file with appropriate content type and enable caching
+            Response.Headers.CacheControl = "public,max-age=31536000"; // Cache for 1 year
+            Response.Headers.ETag = $"\"{photo.Id}-{photo.UploadedAt.Ticks}\"";
+
+            return File(fileBytes, photo.MimeType);
         }
         catch (Exception ex)
         {
