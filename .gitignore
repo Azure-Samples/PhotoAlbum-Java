@@ -245,3 +245,6 @@ PhotoAlbum/wwwroot/uploads/*
 
 # Environment variables
 .env
+
+# Azure Developer CLI
+.azure/

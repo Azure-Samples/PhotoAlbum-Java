@@ -24,13 +24,6 @@ builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(optio
 
 var app = builder.Build();
 
-// Ensure uploads directory exists
-var uploadsPath = Path.Combine(app.Environment.ContentRootPath, "wwwroot", "uploads");
-if (!Directory.Exists(uploadsPath))
-{
-    Directory.CreateDirectory(uploadsPath);
-}
-
 // Run database migrations on startup in all environments (skip only when flagged as test)
 var isTestEnvironment = app.Configuration.GetValue<bool>("IsTestEnvironment");
 if (!isTestEnvironment)
