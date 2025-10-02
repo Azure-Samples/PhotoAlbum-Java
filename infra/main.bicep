@@ -93,17 +93,16 @@ module containerApp 'modules/container-app.bicep' = {
   }
 }
 
-// Azure AD Admin for SQL Server (for deployment user)
-// Note: Disabled for now - configure manually after deployment if needed
-// module sqlAdAdmin 'modules/sql-ad-admin.bicep' = if (!empty(principalId) && !empty(principalName)) {
-//   name: 'sql-ad-admin'
-//   scope: rg
-//   params: {
-//     sqlServerName: sqlServer.outputs.name
-//     principalId: principalId
-//     adminLogin: principalName
-//   }
-// }
+// Azure AD Admin for SQL Server (using Container App managed identity)
+module sqlAdAdmin 'modules/sql-ad-admin.bicep' = {
+  name: 'sql-ad-admin'
+  scope: rg
+  params: {
+    sqlServerName: sqlServer.outputs.name
+    principalId: containerApp.outputs.identityPrincipalId
+    adminLogin: 'ContainerApp-${containerApp.outputs.name}'
+  }
+}
 
 module storageRoleAssignment 'modules/storage-role-assignment.bicep' = if (!empty(principalId)) {
   name: 'storage-role-assignment'
