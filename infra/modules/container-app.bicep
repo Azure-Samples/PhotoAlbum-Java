@@ -54,11 +54,11 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-01' = {
               value: 'Server=tcp:${sqlServerFqdn},1433;Initial Catalog=${sqlDatabaseName};Authentication=Active Directory Default;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;'
             }
             {
-              name: 'AzureStorage__BlobServiceUri'
+              name: 'AzureStorageBlob__Endpoint'
               value: storageAccountBlobEndpoint
             }
             {
-              name: 'AzureStorage__ContainerName'
+              name: 'AzureStorageBlob__ContainerName'
               value: storageContainerName
             }
             {
