@@ -8,14 +8,8 @@
     "location": {
       "value": "${AZURE_LOCATION}"
     },
-    "principalId": {
-      "value": "${AZURE_PRINCIPAL_ID=}"
-    },
-    "principalName": {
-      "value": "${AZURE_PRINCIPAL_NAME=}"
-    },
     "webImageName": {
-      "value": "${SERVICE_WEB_IMAGE_NAME=}"
+      "value": "${SERVICE_WEB_IMAGE_NAME=mcr.microsoft.com/azuredocs/containerapps-helloworld:latest}"
     }
   }
 }

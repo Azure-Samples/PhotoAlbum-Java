@@ -12,3 +12,29 @@ services:
     docker:
       path: ./Dockerfile
       context: .
+
+infra:
+  provider: bicep
+  path: infra
+  module: main
+
+hooks:
+  postprovision:
+    windows:
+      shell: pwsh
+      run: ./infra/hooks/postprovision.ps1
+      continueOnError: false
+    posix:
+      shell: sh
+      run: ./infra/hooks/postprovision.sh
+      continueOnError: false
+
+  predeploy:
+    windows:
+      shell: pwsh
+      run: ./infra/hooks/predeploy.ps1
+      continueOnError: false
+    posix:
+      shell: sh
+      run: ./infra/hooks/predeploy.sh
+      continueOnError: false
