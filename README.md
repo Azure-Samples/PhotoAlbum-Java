@@ -1,86 +1,247 @@
-# PhotoAlbum - Azure Migration Demo for GitHub Copilot
+# Photo Album Application - Java Spring Boot with Oracle DB
 
-A comprehensive demonstration project showcasing how to use **GitHub Copilot app modernization for .NET** to get your
-app prepared for Azure deployment.
+A simple photo storage and gallery application built with Spring Boot and Oracle Database, featuring drag-and-drop upload, responsive gallery view, and full-size photo details with navigation.
 
-## Project Overview
+## Features
 
-PhotoAlbum is an ASP.NET Core Razor Pages application designed to manage and display photo galleries. The application allows users to upload photos, store them locally, and view them in a responsive gallery interface with detailed metadata.
+- ?? **Photo Upload**: Drag-and-drop or click to upload multiple photos
+- ??? **Gallery View**: Responsive grid layout for browsing uploaded photos  
+- ?? **Photo Detail View**: Click any photo to view full-size with metadata and navigation
+- ?? **Metadata Display**: View file size, dimensions, aspect ratio, and upload timestamp
+- ???? **Photo Navigation**: Previous/Next buttons to browse through photos
+- ? **Validation**: File type and size validation (JPEG, PNG, GIF, WebP; max 10MB)
+- ??? **Oracle Database**: Photo metadata stored in Oracle Database
+- ??? **Delete Photos**: Remove photos from both gallery and detail views
+- ?? **Modern UI**: Clean, responsive design with Bootstrap 5
 
-PhotoAlbum provides a simple photo management system, allowing users to:
-- Upload photos via drag-and-drop or file selection
-- View uploaded photos in a responsive gallery grid
-- View full-size photos with detailed metadata (dimensions, file size, aspect ratio)
-- Navigate between photos using Previous/Next controls
-- Delete photos from the gallery
-- Store photo metadata in SQL Server LocalDB
+## Technology Stack
 
-## 📋 Prerequisites
+- **Framework**: Spring Boot 2.7.18 (Java 8)
+- **Database**: Oracle Database 21c Express Edition
+- **Templating**: Thymeleaf
+- **Build Tool**: Maven
+- **Frontend**: Bootstrap 5.3.0, Vanilla JavaScript
+- **Containerization**: Docker & Docker Compose
 
-Before you begin, ensure you have:
+## Prerequisites
 
-- **[Visual Studio 2022 Preview](https://aka.ms/vs/17/int.d17.14/vs_enterprise.exe)** for the in-box experience. Ensure the following workloads are selected during installation
-    - ASP.NET and web development
-    - .NET desktop development
-- **[Git](https://git-scm.com/)** for version control
-- **GitHub account** with Copilot access
+- Docker Desktop installed and running
+- Docker Compose (included with Docker Desktop)
+- Minimum 4GB RAM available for Oracle DB container
 
-## ⚙️ VS Configuration
+## Quick Start
 
-1. Set the environment variable `COPILOT_INTERNALUSER=true` in your system to enable the GitHub Copilot internal use features.
-1. Set the following GitHub Copilot setting in "Tools" menu --> "Options...". Search the setting from the top left search box, and update the value accordingly.
-    - `MaxFunctionCallIterations`: 100
-1. Click the "GitHub Copilot" button on the top right of VS, and click "Open Chat Window". Sign in with your GitHub account.
-    > **NOTE**: At the bottom of the GitHub Copilot Chat window, select the mode of **Agent** and model of **Claude Sonnet 4**.
+1. **Clone the repository**:
+   ```bash
+   git clone <repository-url>
+   cd PhotoAlbum
+   ```
 
-## 🚀 Getting Started
+2. **Start the application**:
+   ```bash
+   # On Windows
+   start.bat
+   
+   # On Unix/Linux/macOS
+   ./start.sh
+   
+   # Or use docker-compose directly
+   docker-compose up --build
+   ```
 
+   This will:
+   - Start Oracle Database 21c Express Edition container
+   - Build the Java Spring Boot application
+   - Start the Photo Album application container
+   - Automatically create the database schema using JPA/Hibernate
 
-### Step 1: Clone and Open the Project
+3. **Wait for services to start**:
+   - Oracle DB takes 2-3 minutes to initialize on first run
+   - Application will start once Oracle is healthy
 
-```sh
-git clone https://github.com/menxiao_microsoft/PhotoAlbum.git
-cd PhotoAlbum
+4. **Access the application**:
+   - Open your browser and navigate to: **http://localhost:8080**
+   - The application should be running and ready to use
+
+## Services
+
+### Oracle Database
+- **Image**: `container-registry.oracle.com/database/express:21.3.0-xe`
+- **Ports**: 
+  - `1521` (database) - mapped to host port 1521
+  - `5500` (Enterprise Manager) - mapped to host port 5500
+- **Database**: `XE` (Express Edition)
+- **Schema**: `photoalbum`
+- **Username/Password**: `photoalbum/photoalbum`
+
+### Photo Album Java Application
+- **Port**: `8080` (mapped to host port 8080)
+- **Framework**: Spring Boot 2.7.18
+- **Java Version**: 8
+- **Database**: Connects to Oracle container
+
+## Database Setup
+
+The application uses Spring Data JPA with Hibernate for automatic schema management:
+
+1. **Automatic Schema Creation**: Hibernate automatically creates tables and indexes
+2. **User Creation**: Oracle init scripts create the `photoalbum` user
+3. **No Manual Setup Required**: Everything is handled automatically
+
+### Database Schema
+
+The application creates the following table structure in Oracle:
+
+#### PHOTOS Table
+- `ID` (NUMBER, Primary Key, Sequence Generated)
+- `ORIGINAL_FILE_NAME` (VARCHAR2(255), Not Null)
+- `STORED_FILE_NAME` (VARCHAR2(255), Not Null)
+- `FILE_PATH` (VARCHAR2(500), Not Null)
+- `FILE_SIZE` (NUMBER, Not Null)
+- `MIME_TYPE` (VARCHAR2(50), Not Null)
+- `UPLOADED_AT` (TIMESTAMP, Not Null)
+- `WIDTH` (NUMBER, Nullable)
+- `HEIGHT` (NUMBER, Nullable)
+
+#### Indexes
+- `IDX_PHOTOS_UPLOADED_AT` (Index on UPLOADED_AT for chronological queries)
+
+#### Sequences
+- `PHOTO_SEQ` (Sequence for ID generation)
+
+## File Storage
+
+Uploaded photos are stored in the `uploads` directory, which is mapped to the host filesystem for persistence.
+
+## Development
+
+### Running Locally (without Docker)
+
+1. **Install Oracle Database** (or use Oracle XE)
+2. **Create database user**:
+   ```sql
+   CREATE USER photoalbum IDENTIFIED BY photoalbum;
+   GRANT CONNECT, RESOURCE, DBA TO photoalbum;
+   ```
+3. **Update application.properties**:
+   ```properties
+   spring.datasource.url=jdbc:oracle:thin:@localhost:1521:XE
+   spring.datasource.username=photoalbum
+   spring.datasource.password=photoalbum
+   ```
+4. **Run the application**:
+   ```bash
+   mvn spring-boot:run
+   ```
+
+### Building from Source
+
+```bash
+# Build the JAR file
+mvn clean package
+
+# Run the JAR file
+java -jar target/photo-album-1.0.0.jar
 ```
 
-Open the solution file `PhotoAlbum.sln` in Visual Studio 2022.
+## Troubleshooting
 
-## 🔄 Demonstration: Migrating to Azure Blob Storage
+### Oracle Database Issues
 
-### Step 1: Run Assessment
+1. **Oracle container won't start**:
+   ```bash
+   # Check container logs
+   docker-compose logs oracle-db
+   
+   # Increase Docker memory allocation to at least 4GB
+   ```
 
-1. In Visual Studio, open **GitHub Copilot Chat**
-2. Type:
-	```
-	@Modernize Migrate to Azure
-	```
-3. The extension will analyze your code and identify modernization opportunities
-4. Review the assessment report showing local file system usage
+2. **Database connection errors**:
+   ```bash
+   # Verify Oracle is ready
+   docker exec -it photoalbum-oracle sqlplus photoalbum/photoalbum@//localhost:1521/XE
+   ```
 
-### Step 2: Start Migration
+3. **Permission errors**:
+   ```bash
+   # Check Oracle init scripts ran
+   docker-compose logs oracle-db | grep "setup"
+   ```
 
-1. In the assessment report, click **Run Task** button for the issue of **File System Management**:
+### Application Issues
 
-   ![Run Task](media/run-migartion-task.png)
+1. **View application logs**:
+   ```bash
+   docker-compose logs photoalbum-java-app
+   ```
 
-2. The extension will:
-   - Create a migration plan in `.appmod/.migration/plan.md`
-   - Set up progress tracking in `.appmod/.migration/progress.md`
+2. **Rebuild application**:
+   ```bash
+   docker-compose up --build
+   ```
 
-3. After the plan is created, the agent will stop to ask you to review the plan. Type "Continue" to proceed with the migration.
+3. **Reset database (nuclear option)**:
+   ```bash
+   docker-compose down -v
+   docker-compose up --build
+   ```
 
-4. During migration, the agent will call various tools and commands to execute version control and code modification, please "Allow" when the tool calls are asked.
+## Stopping the Application
 
-4. After the code is migrated, the agent will build and validate this project, and fix if any errors are detected.
+```bash
+# Stop services
+docker-compose down
 
-Some tips during the migration:
+# Stop and remove all data (including database)
+docker-compose down -v
+```
 
-- After updating project related settings, it will reload the project. This is likely to bring the "Solution Explorer" view to the top, and you need to click the "GitHub Copilot Chat" view tab to bring it back and check the latest conversations.
-- If the session stop in the middle of the whole process. Try sending "Continue" in the chat box to resume.
-### Step 3: Review Migration Results
+## Enterprise Manager (Optional)
 
-The extension provides comprehensive tracking:
-- ✅ **Detailed progress tracking** with checkboxes for each task
-- 🔄 **Git commits** for each major step with descriptive messages
-- 🏗️ **Build verification** to ensure compilation succeeds
-- 🔒 **Security validation** to check for vulnerabilities
+Oracle Enterprise Manager is available at `http://localhost:5500/em` for database administration:
+- **Username**: `system`
+- **Password**: `photoalbum`
+- **Container**: `XE`
+
+## Performance Notes
+
+- Oracle XE has limitations (max 2 CPU threads, 2GB RAM, 12GB storage)
+- For production use, consider Oracle Standard/Enterprise Edition
+- File upload performance is optimized with proper validation
+- Database queries are optimized with proper indexing
+
+## Project Structure
+
+```
+PhotoAlbum/
+??? src/main/java/com/photoalbum/    # Java source code
+?   ??? controller/                  # Spring MVC controllers
+?   ??? model/                       # JPA entities
+?   ??? repository/                  # Data access layer
+?   ??? service/                     # Business logic
+?   ??? config/                      # Configuration classes
+??? src/main/resources/              # Application resources
+?   ??? templates/                   # Thymeleaf templates
+?   ??? static/                      # Static web assets (CSS, JS)
+?   ??? application.properties       # Configuration
+??? oracle-init/                     # Oracle DB initialization scripts
+??? uploads/                         # Photo file storage
+??? docker-compose.yml               # Docker services definition
+??? Dockerfile                       # Application container build
+??? pom.xml                          # Maven dependencies
+??? README.md                        # This file
+```
+
+## Contributing
+
+When contributing to this project:
+
+- Follow Spring Boot best practices
+- Maintain Oracle compatibility
+- Ensure UI/UX consistency
+- Add appropriate tests
+- Update documentation
+
+## License
+
+This project is provided as-is for educational and demonstration purposes.

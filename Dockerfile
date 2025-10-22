@@ -1,19 +1,34 @@
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
+# Use Maven with OpenJDK 8 for building
+FROM maven:3.9.6-eclipse-temurin-8 AS build
+
 WORKDIR /app
+
+# Copy Maven files for dependency resolution
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
+
+# Copy source code
+COPY src ./src
+
+# Build the application
+RUN mvn clean package -DskipTests
+
+# Use OpenJDK 8 runtime for the final image
+FROM eclipse-temurin:8-jre
+
+WORKDIR /app
+
+# Create uploads directory
+RUN mkdir -p /app/uploads
+
+# Copy the built jar file
+COPY --from=build /app/target/photo-album-*.jar app.jar
+
+# Expose port
 EXPOSE 8080
 
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
-WORKDIR /src
-COPY ["PhotoAlbum/PhotoAlbum.csproj", "PhotoAlbum/"]
-RUN dotnet restore "PhotoAlbum/PhotoAlbum.csproj"
-COPY . .
-WORKDIR "/src/PhotoAlbum"
-RUN dotnet build "PhotoAlbum.csproj" -c Release -o /app/build
+# Set JVM options for container environment
+ENV JAVA_OPTS="-Xmx512m -Xms256m"
 
-FROM build AS publish
-RUN dotnet publish "PhotoAlbum.csproj" -c Release -o /app/publish /p:UseAppHost=false
-
-FROM base AS final
-WORKDIR /app
-COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "PhotoAlbum.dll"]
+# Run the application
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
