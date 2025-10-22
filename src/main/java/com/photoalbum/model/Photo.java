@@ -54,7 +54,7 @@ public class Photo {
      */
     @NotNull
     @Positive
-    @Column(name = "file_size", nullable = false)
+    @Column(name = "file_size", nullable = false, columnDefinition = "NUMBER(19,0)")
     private Long fileSize;
 
     /**
@@ -69,7 +69,7 @@ public class Photo {
      * Timestamp of upload
      */
     @NotNull
-    @Column(name = "uploaded_at", nullable = false)
+    @Column(name = "uploaded_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT SYSTIMESTAMP")
     private LocalDateTime uploadedAt;
 
     /**
