@@ -41,12 +41,6 @@ A simple photo storage and gallery application built with Spring Boot and Oracle
    ```bash
    # Use docker-compose directly
    docker-compose up --build
-
-   # or run the start script on Windows
-   .\start.bat
-   
-   # On Unix/Linux/macOS
-   ./start.sh
    ```
 
    This will:
