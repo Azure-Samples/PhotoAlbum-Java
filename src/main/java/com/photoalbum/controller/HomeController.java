@@ -39,9 +39,12 @@ public class HomeController {
         try {
             List<Photo> photos = photoService.getAllPhotos();
             model.addAttribute("photos", photos);
+            // Add timestamp for cache busting
+            model.addAttribute("timestamp", System.currentTimeMillis());
         } catch (Exception ex) {
             logger.error("Error loading photos", ex);
             model.addAttribute("photos", new ArrayList<Photo>());
+            model.addAttribute("timestamp", System.currentTimeMillis());
         }
         return "index";
     }

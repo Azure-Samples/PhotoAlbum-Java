@@ -7,24 +7,26 @@ public class UploadResult {
     private boolean success;
     private String fileName;
     private String errorMessage;
-    private Long photoId;
+    private String photoId;
 
     // Default constructor
     public UploadResult() {
     }
 
-    // Constructor for successful upload
-    public UploadResult(boolean success, String fileName, Long photoId) {
+    // Constructor for successful upload with photo ID
+    public UploadResult(boolean success, String fileName, String photoId) {
         this.success = success;
         this.fileName = fileName;
         this.photoId = photoId;
     }
 
-    // Constructor for failed upload
-    public UploadResult(boolean success, String fileName, String errorMessage) {
-        this.success = success;
-        this.fileName = fileName;
-        this.errorMessage = errorMessage;
+    // Static factory method for failed upload
+    public static UploadResult failure(String fileName, String errorMessage) {
+        UploadResult result = new UploadResult();
+        result.success = false;
+        result.fileName = fileName;
+        result.errorMessage = errorMessage;
+        return result;
     }
 
     // Getters and Setters
@@ -52,11 +54,11 @@ public class UploadResult {
         this.errorMessage = errorMessage;
     }
 
-    public Long getPhotoId() {
+    public String getPhotoId() {
         return photoId;
     }
 
-    public void setPhotoId(Long photoId) {
+    public void setPhotoId(String photoId) {
         this.photoId = photoId;
     }
 

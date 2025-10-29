@@ -30,8 +30,8 @@ public class DetailController {
      * Handles GET requests to display a photo
      */
     @GetMapping("/{id}")
-    public String detail(@PathVariable Long id, Model model) {
-        if (id == null) {
+    public String detail(@PathVariable String id, Model model) {
+        if (id == null || id.trim().isEmpty()) {
             return "redirect:/";
         }
 
@@ -62,7 +62,7 @@ public class DetailController {
      * Handles POST requests to delete a photo
      */
     @PostMapping("/{id}/delete")
-    public String deletePhoto(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+    public String deletePhoto(@PathVariable String id, RedirectAttributes redirectAttributes) {
         try {
             boolean deleted = photoService.deletePhoto(id);
             if (deleted) {

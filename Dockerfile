@@ -18,9 +18,6 @@ FROM eclipse-temurin:8-jre
 
 WORKDIR /app
 
-# Create uploads directory
-RUN mkdir -p /app/uploads
-
 # Copy the built jar file
 COPY --from=build /app/target/photo-album-*.jar app.jar
 

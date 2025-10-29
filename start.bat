@@ -22,10 +22,6 @@ if %errorlevel% neq 0 (
 
 echo ? Docker Compose is available
 
-REM Create uploads directory if it doesn't exist
-if not exist "uploads" mkdir uploads
-echo ?? Created uploads directory
-
 REM Start the services
 echo ?? Starting services with Docker Compose...
 echo    - Oracle Database 21c XE (this may take 2-3 minutes on first run)

@@ -20,11 +20,6 @@ fi
 
 echo "? Docker Compose is available"
 
-# Create uploads directory if it doesn't exist
-mkdir -p uploads
-
-echo "?? Created uploads directory"
-
 # Start the services
 echo "?? Starting services with Docker Compose..."
 echo "   - Oracle Database 21c XE (this may take 2-3 minutes on first run)"

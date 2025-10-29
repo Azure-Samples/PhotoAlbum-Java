@@ -152,7 +152,7 @@
         }
 
         // Add photos to the beginning of the gallery
-        photos.forEach(photo => {
+        photos.forEach((photo) => {
             const photoCard = createPhotoCard(photo);
             galleryElement.insertAdjacentHTML('afterbegin', photoCard);
         });
@@ -170,18 +170,19 @@
         });
 
         const dimensions = (photo.width && photo.height)
-            ? ` • ${photo.width} x ${photo.height}`
+            ? ` â€¢ ${photo.width} x ${photo.height}`
             : '';
 
-        // Use indirect photo URL
-        const photoUrl = `/photo/${photo.id}`;
+        // Use photo URL with current timestamp to bypass all caching
+        const timestamp = new Date().getTime();
+        const photoUrl = `/photo/${photo.id}?_t=${timestamp}`;
         const detailUrl = `/detail/${photo.id}`;
 
         return `
             <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
                 <div class="card photo-card h-100">
                     <a href="${detailUrl}" class="photo-link">
-                        <img src="${photoUrl}" class="card-img-top" alt="${photo.originalFileName}" loading="lazy">
+                        <img src="${photoUrl}" class="card-img-top" alt="${photo.originalFileName}" loading="eager">
                     </a>
                     <div class="card-body">
                         <p class="card-text text-truncate" title="${photo.originalFileName}">

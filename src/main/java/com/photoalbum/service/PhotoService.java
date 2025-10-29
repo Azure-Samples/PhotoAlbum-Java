@@ -23,7 +23,7 @@ public interface PhotoService {
      * @param id Photo ID
      * @return Photo if found, empty otherwise
      */
-    Optional<Photo> getPhotoById(Long id);
+    Optional<Photo> getPhotoById(String id);
 
     /**
      * Upload a photo file
@@ -37,7 +37,7 @@ public interface PhotoService {
      * @param id Photo ID
      * @return True if deleted successfully, false if not found
      */
-    boolean deletePhoto(Long id);
+    boolean deletePhoto(String id);
 
     /**
      * Get the previous photo (older) for navigation

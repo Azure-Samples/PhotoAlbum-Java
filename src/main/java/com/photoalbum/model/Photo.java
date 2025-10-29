@@ -7,6 +7,7 @@ import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
  * Represents an uploaded photo with metadata for display and management
@@ -18,12 +19,11 @@ import java.time.LocalDateTime;
 public class Photo {
 
     /**
-     * Unique identifier for the photo
+     * Unique identifier for the photo using UUID
      */
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "photo_seq")
-    @SequenceGenerator(name = "photo_seq", sequenceName = "PHOTO_SEQ", allocationSize = 1)
-    private Long id;
+    @Column(name = "id", length = 36)
+    private String id;
 
     /**
      * Original filename as uploaded by user
@@ -34,7 +34,14 @@ public class Photo {
     private String originalFileName;
 
     /**
-     * GUID-based filename with extension stored on disk
+     * Binary photo data stored directly in Oracle database
+     */
+    @Lob
+    @Column(name = "photo_data", nullable = true)
+    private byte[] photoData;
+
+    /**
+     * GUID-based filename with extension (for compatibility)
      */
     @NotBlank
     @Size(max = 255)
@@ -42,11 +49,10 @@ public class Photo {
     private String storedFileName;
 
     /**
-     * Relative path from static resources (e.g., /uploads/abc123.jpg)
+     * Relative path from static resources (for compatibility - not used for DB storage)
      */
-    @NotBlank
     @Size(max = 500)
-    @Column(name = "file_path", nullable = false, length = 500)
+    @Column(name = "file_path", length = 500)
     private String filePath;
 
     /**
@@ -86,10 +92,22 @@ public class Photo {
 
     // Default constructor
     public Photo() {
+        this.id = UUID.randomUUID().toString();
         this.uploadedAt = LocalDateTime.now();
     }
 
     // Constructor with required fields
+    public Photo(String originalFileName, byte[] photoData, String storedFileName, String filePath, Long fileSize, String mimeType) {
+        this();
+        this.originalFileName = originalFileName;
+        this.photoData = photoData;
+        this.storedFileName = storedFileName;
+        this.filePath = filePath;
+        this.fileSize = fileSize;
+        this.mimeType = mimeType;
+    }
+
+    // Constructor with required fields (file system compatibility)
     public Photo(String originalFileName, String storedFileName, String filePath, Long fileSize, String mimeType) {
         this();
         this.originalFileName = originalFileName;
@@ -100,11 +118,11 @@ public class Photo {
     }
 
     // Getters and Setters
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -114,6 +132,14 @@ public class Photo {
 
     public void setOriginalFileName(String originalFileName) {
         this.originalFileName = originalFileName;
+    }
+
+    public byte[] getPhotoData() {
+        return photoData;
+    }
+
+    public void setPhotoData(byte[] photoData) {
+        this.photoData = photoData;
     }
 
     public String getStoredFileName() {

@@ -13,13 +13,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -35,17 +30,14 @@ public class PhotoServiceImpl implements PhotoService {
     private static final Logger logger = LoggerFactory.getLogger(PhotoServiceImpl.class);
 
     private final PhotoRepository photoRepository;
-    private final String uploadPath;
     private final long maxFileSizeBytes;
     private final List<String> allowedMimeTypes;
 
     public PhotoServiceImpl(
             PhotoRepository photoRepository,
-            @Value("${app.file-upload.upload-path}") String uploadPath,
             @Value("${app.file-upload.max-file-size-bytes}") long maxFileSizeBytes,
             @Value("${app.file-upload.allowed-mime-types}") String[] allowedMimeTypes) {
         this.photoRepository = photoRepository;
-        this.uploadPath = uploadPath;
         this.maxFileSizeBytes = maxFileSizeBytes;
         this.allowedMimeTypes = Arrays.asList(allowedMimeTypes);
     }
@@ -69,7 +61,7 @@ public class PhotoServiceImpl implements PhotoService {
      */
     @Override
     @Transactional(readOnly = true)
-    public Optional<Photo> getPhotoById(Long id) {
+    public Optional<Photo> getPhotoById(String id) {
         try {
             return photoRepository.findById(id);
         } catch (Exception ex) {
@@ -112,74 +104,63 @@ public class PhotoServiceImpl implements PhotoService {
                 return result;
             }
 
-            // Generate unique filename
+            // Generate unique filename for compatibility (stored in database, not on disk)
             String extension = getFileExtension(file.getOriginalFilename());
             String storedFileName = UUID.randomUUID().toString() + extension;
-            String relativePath = "/uploads/" + storedFileName;
+            String relativePath = "/uploads/" + storedFileName; // For compatibility only
 
-            // Ensure upload directory exists
-            Path uploadDir = Paths.get(uploadPath);
-            if (!Files.exists(uploadDir)) {
-                Files.createDirectories(uploadDir);
-            }
-
-            Path fullPath = uploadDir.resolve(storedFileName);
-
-            // Extract image dimensions
+            // Extract image dimensions and read file data
             Integer width = null;
             Integer height = null;
+            byte[] photoData = null;
+            
             try {
-                BufferedImage image = ImageIO.read(file.getInputStream());
-                if (image != null) {
-                    width = image.getWidth();
-                    height = image.getHeight();
+                // Read file content for database storage
+                photoData = file.getBytes();
+                
+                // Extract image dimensions from byte array
+                try (ByteArrayInputStream bis = new ByteArrayInputStream(photoData)) {
+                    BufferedImage image = ImageIO.read(bis);
+                    if (image != null) {
+                        width = image.getWidth();
+                        height = image.getHeight();
+                    }
                 }
+            } catch (IOException ex) {
+                logger.error("Error reading file data for {}", file.getOriginalFilename(), ex);
+                result.setSuccess(false);
+                result.setErrorMessage("Error reading file data. Please try again.");
+                return result;
             } catch (Exception ex) {
                 logger.warn("Could not extract image dimensions for {}", file.getOriginalFilename(), ex);
                 // Continue without dimensions - not critical
             }
 
-            // Save file to disk
-            try {
-                Files.copy(file.getInputStream(), fullPath, StandardCopyOption.REPLACE_EXISTING);
-            } catch (Exception ex) {
-                logger.error("Error saving file {} to {}", file.getOriginalFilename(), fullPath, ex);
-                result.setSuccess(false);
-                result.setErrorMessage("Error saving file. Please try again.");
-                return result;
-            }
-
-            // Create photo entity
+            // Create photo entity with database BLOB storage
             Photo photo = new Photo(
                 file.getOriginalFilename(),
+                photoData,  // Store actual photo data in Oracle database
                 storedFileName,
-                relativePath,
+                relativePath, // Keep for compatibility, not used for serving
                 file.getSize(),
                 file.getContentType()
             );
             photo.setWidth(width);
             photo.setHeight(height);
 
-            // Save to database
+            // Save to database (with BLOB photo data)
             try {
                 photo = photoRepository.save(photo);
 
                 result.setSuccess(true);
                 result.setPhotoId(photo.getId());
 
-                logger.info("Successfully uploaded photo {} with ID {}", 
+                logger.info("Successfully uploaded photo {} with ID {} to Oracle database", 
                     file.getOriginalFilename(), photo.getId());
             } catch (Exception ex) {
-                // Rollback: Delete file if database save fails
-                try {
-                    Files.deleteIfExists(fullPath);
-                } catch (Exception deleteEx) {
-                    logger.error("Error deleting file {} during rollback", fullPath, deleteEx);
-                }
-
-                logger.error("Error saving photo metadata to database for {}", file.getOriginalFilename(), ex);
+                logger.error("Error saving photo to Oracle database for {}", file.getOriginalFilename(), ex);
                 result.setSuccess(false);
-                result.setErrorMessage("Error saving photo information. Please try again.");
+                result.setErrorMessage("Error saving photo to database. Please try again.");
             }
         } catch (Exception ex) {
             logger.error("Unexpected error during photo upload for {}", file.getOriginalFilename(), ex);
@@ -194,7 +175,7 @@ public class PhotoServiceImpl implements PhotoService {
      * Delete a photo by ID
      */
     @Override
-    public boolean deletePhoto(Long id) {
+    public boolean deletePhoto(String id) {
         try {
             Optional<Photo> photoOpt = photoRepository.findById(id);
             if (!photoOpt.isPresent()) {
@@ -204,22 +185,13 @@ public class PhotoServiceImpl implements PhotoService {
 
             Photo photo = photoOpt.get();
 
-            // Delete file from disk
-            Path fullPath = Paths.get(uploadPath, photo.getStoredFileName());
-            try {
-                Files.deleteIfExists(fullPath);
-            } catch (Exception ex) {
-                logger.error("Error deleting file {} for photo ID {}", fullPath, id, ex);
-                // Continue with database deletion even if file deletion fails
-            }
-
-            // Delete from database
+            // Delete from Oracle database (photos stored as BLOB)
             photoRepository.delete(photo);
 
-            logger.info("Successfully deleted photo ID {}", id);
+            logger.info("Successfully deleted photo ID {} from Oracle database", id);
             return true;
         } catch (Exception ex) {
-            logger.error("Error deleting photo with ID {}", id, ex);
+            logger.error("Error deleting photo with ID {} from Oracle database", id, ex);
             throw new RuntimeException("Error deleting photo", ex);
         }
     }

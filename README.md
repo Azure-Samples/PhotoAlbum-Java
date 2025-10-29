@@ -4,15 +4,15 @@ A simple photo storage and gallery application built with Spring Boot and Oracle
 
 ## Features
 
-- ?? **Photo Upload**: Drag-and-drop or click to upload multiple photos
-- ??? **Gallery View**: Responsive grid layout for browsing uploaded photos  
-- ?? **Photo Detail View**: Click any photo to view full-size with metadata and navigation
-- ?? **Metadata Display**: View file size, dimensions, aspect ratio, and upload timestamp
-- ???? **Photo Navigation**: Previous/Next buttons to browse through photos
-- ? **Validation**: File type and size validation (JPEG, PNG, GIF, WebP; max 10MB)
-- ??? **Oracle Database**: Photo metadata stored in Oracle Database
-- ??? **Delete Photos**: Remove photos from both gallery and detail views
-- ?? **Modern UI**: Clean, responsive design with Bootstrap 5
+- 📤 **Photo Upload**: Drag-and-drop or click to upload multiple photos
+- 🖼️ **Gallery View**: Responsive grid layout for browsing uploaded photos  
+- 🔍 **Photo Detail View**: Click any photo to view full-size with metadata and navigation
+- 📊 **Metadata Display**: View file size, dimensions, aspect ratio, and upload timestamp
+- ⬅️➡️ **Photo Navigation**: Previous/Next buttons to browse through photos
+- ✅ **Validation**: File type and size validation (JPEG, PNG, GIF, WebP; max 10MB)
+- 🗄️ **Database Storage**: Photo data stored as BLOBs in Oracle Database
+- 🗑️ **Delete Photos**: Remove photos from both gallery and detail views
+- 🎨 **Modern UI**: Clean, responsive design with Bootstrap 5
 
 ## Technology Stack
 
@@ -39,14 +39,14 @@ A simple photo storage and gallery application built with Spring Boot and Oracle
 
 2. **Start the application**:
    ```bash
-   # On Windows
-   start.bat
+   # Use docker-compose directly
+   docker-compose up --build
+
+   # or run the start script on Windows
+   .\start.bat
    
    # On Unix/Linux/macOS
    ./start.sh
-   
-   # Or use docker-compose directly
-   docker-compose up --build
    ```
 
    This will:
@@ -65,7 +65,7 @@ A simple photo storage and gallery application built with Spring Boot and Oracle
 
 ## Services
 
-### Oracle Database
+## Oracle Database
 - **Image**: `container-registry.oracle.com/database/express:21.3.0-xe`
 - **Ports**: 
   - `1521` (database) - mapped to host port 1521
@@ -74,11 +74,13 @@ A simple photo storage and gallery application built with Spring Boot and Oracle
 - **Schema**: `photoalbum`
 - **Username/Password**: `photoalbum/photoalbum`
 
-### Photo Album Java Application
+## Photo Album Java Application
 - **Port**: `8080` (mapped to host port 8080)
 - **Framework**: Spring Boot 2.7.18
 - **Java Version**: 8
 - **Database**: Connects to Oracle container
+- **Photo Storage**: All photos stored as BLOBs in database (no file system storage)
+- **UUID System**: Each photo gets a globally unique identifier for cache-busting
 
 ## Database Setup
 
@@ -93,25 +95,35 @@ The application uses Spring Data JPA with Hibernate for automatic schema managem
 The application creates the following table structure in Oracle:
 
 #### PHOTOS Table
-- `ID` (NUMBER, Primary Key, Sequence Generated)
+- `ID` (VARCHAR2(36), Primary Key, UUID Generated)
 - `ORIGINAL_FILE_NAME` (VARCHAR2(255), Not Null)
 - `STORED_FILE_NAME` (VARCHAR2(255), Not Null)
-- `FILE_PATH` (VARCHAR2(500), Not Null)
+- `FILE_PATH` (VARCHAR2(500), Nullable)
 - `FILE_SIZE` (NUMBER, Not Null)
 - `MIME_TYPE` (VARCHAR2(50), Not Null)
-- `UPLOADED_AT` (TIMESTAMP, Not Null)
+- `UPLOADED_AT` (TIMESTAMP, Not Null, Default SYSTIMESTAMP)
 - `WIDTH` (NUMBER, Nullable)
 - `HEIGHT` (NUMBER, Nullable)
+- `PHOTO_DATA` (BLOB, Not Null)
 
 #### Indexes
 - `IDX_PHOTOS_UPLOADED_AT` (Index on UPLOADED_AT for chronological queries)
 
-#### Sequences
-- `PHOTO_SEQ` (Sequence for ID generation)
+#### UUID Generation
+- **Java**: `UUID.randomUUID().toString()` generates unique identifiers
+- **Benefits**: Eliminates browser caching issues, globally unique across databases
+- **Format**: Standard UUID format (36 characters with hyphens)
 
-## File Storage
+## Storage Architecture
 
-Uploaded photos are stored in the `uploads` directory, which is mapped to the host filesystem for persistence.
+### Database BLOB Storage (Current Implementation)
+- **Photos**: Stored as BLOB data directly in the database
+- **Benefits**: 
+  - No file system dependencies
+  - ACID compliance for photo operations
+  - Simplified backup and migration
+  - Perfect for containerized deployments
+- **Trade-offs**: Database size increases, but suitable for moderate photo volumes
 
 ## Development
 
@@ -128,6 +140,7 @@ Uploaded photos are stored in the `uploads` directory, which is mapped to the ho
    spring.datasource.url=jdbc:oracle:thin:@localhost:1521:XE
    spring.datasource.username=photoalbum
    spring.datasource.password=photoalbum
+   spring.jpa.hibernate.ddl-auto=create
    ```
 4. **Run the application**:
    ```bash
@@ -206,9 +219,8 @@ Oracle Enterprise Manager is available at `http://localhost:5500/em` for databas
 ## Performance Notes
 
 - Oracle XE has limitations (max 2 CPU threads, 2GB RAM, 12GB storage)
-- For production use, consider Oracle Standard/Enterprise Edition
-- File upload performance is optimized with proper validation
-- Database queries are optimized with proper indexing
+- BLOB storage in database impacts performance at scale
+- Suitable for development and small-scale deployments
 
 ## Project Structure
 
@@ -224,11 +236,16 @@ PhotoAlbum/
 ?   ??? templates/                   # Thymeleaf templates
 ?   ??? static/                      # Static web assets (CSS, JS)
 ?   ??? application.properties       # Configuration
-??? oracle-init/                     # Oracle DB initialization scripts
-??? uploads/                         # Photo file storage
-??? docker-compose.yml               # Docker services definition
-??? Dockerfile                       # Application container build
-??? pom.xml                          # Maven dependencies
+├── oracle-init/                     # Oracle DB initialization scripts
+├── infra/                           # Azure infrastructure (Bicep)
+│   ├── main.bicep                   # Main template
+│   ├── container-app.bicep          # Container Apps configuration
+│   └── database.bicep               # PostgreSQL configuration
+├── docker-compose.yml               # Local development services
+├── Dockerfile                       # Application container build
+├── azure-setup.sh                   # Azure infrastructure deployment
+├── deploy-to-azure.sh              # Application deployment
+├── pom.xml                          # Maven dependencies
 ??? README.md                        # This file
 ```
 
@@ -237,10 +254,12 @@ PhotoAlbum/
 When contributing to this project:
 
 - Follow Spring Boot best practices
-- Maintain Oracle compatibility
+- Maintain database compatibility
 - Ensure UI/UX consistency
-- Add appropriate tests
-- Update documentation
+- Test both local Docker and Azure deployment scenarios
+- Update documentation for any architectural changes
+- Preserve UUID system integrity
+- Add appropriate tests for new features
 
 ## License
 
