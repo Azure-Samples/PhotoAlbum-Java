@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import java.util.Optional;
 
 /**
- * Controller for serving photo files from Oracle database BLOB storage
+ * Controller for serving photo files from PostgreSQL database BYTEA storage
  */
 @Controller
 @RequestMapping("/photo")
@@ -32,7 +32,7 @@ public class PhotoFileController {
     }
 
     /**
-     * Serves a photo file by ID from Oracle database BLOB storage
+     * Serves a photo file by ID from PostgreSQL database BYTEA storage
      */
     @GetMapping("/{id}")
     public ResponseEntity<Resource> servePhoto(@PathVariable String id) {
@@ -54,7 +54,7 @@ public class PhotoFileController {
             logger.info("Found photo: originalFileName={}, mimeType={}", 
                     photo.getOriginalFileName(), photo.getMimeType());
 
-            // Get photo data from Oracle database BLOB
+            // Get photo data from PostgreSQL database BYTEA
             byte[] photoData = photo.getPhotoData();
             if (photoData == null || photoData.length == 0) {
                 logger.error("No photo data found for photo ID {}", id);
@@ -68,7 +68,7 @@ public class PhotoFileController {
             // Create resource from byte array
             Resource resource = new ByteArrayResource(photoData);
 
-            logger.info("Serving photo ID {} ({}, {} bytes) from Oracle database",
+            logger.info("Serving photo ID {} ({}, {} bytes) from PostgreSQL database",
                     id, photo.getOriginalFileName(), photoData.length);
 
             // Return the photo data with appropriate content type and aggressive no-cache headers
@@ -82,7 +82,7 @@ public class PhotoFileController {
                     .header("X-Photo-Size", String.valueOf(photoData.length))
                     .body(resource);
         } catch (Exception ex) {
-            logger.error("Error serving photo with ID {} from Oracle database", id, ex);
+            logger.error("Error serving photo with ID {} from PostgreSQL database", id, ex);
             return ResponseEntity.status(500).build();
         }
     }

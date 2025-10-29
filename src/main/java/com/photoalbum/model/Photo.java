@@ -34,7 +34,7 @@ public class Photo {
     private String originalFileName;
 
     /**
-     * Binary photo data stored directly in Oracle database
+     * Binary photo data stored directly in PostgreSQL database
      */
     @Lob
     @Column(name = "photo_data", nullable = true)
@@ -75,7 +75,8 @@ public class Photo {
      * Timestamp of upload
      */
     @NotNull
-    @Column(name = "uploaded_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT SYSTIMESTAMP")
+    // Migrated from Oracle to PostgreSQL according to java check item 9999: Migrate all other Oracle-specific content to PostgreSQL. For each line, carefully verify whether it uses Oracle-only features.
+    @Column(name = "uploaded_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime uploadedAt;
 
     /**
