@@ -1,6 +1,6 @@
 # Photo Album Application - Java Spring Boot with Oracle DB
 
-A simple photo storage and gallery application built with Spring Boot and Oracle Database, featuring drag-and-drop upload, responsive gallery view, and full-size photo details with navigation.
+A photo gallery application built with Spring Boot and Oracle Database, featuring drag-and-drop upload, responsive gallery view, and full-size photo details with navigation.
 
 ## Features
 
@@ -33,14 +33,14 @@ A simple photo storage and gallery application built with Spring Boot and Oracle
 
 1. **Clone the repository**:
    ```bash
-   git clone <repository-url>
-   cd PhotoAlbum
+   git clone https://github.com/Azure-Samples/PhotoAlbum-Java.git
+   cd PhotoAlbum-Java
    ```
 
 2. **Start the application**:
    ```bash
    # Use docker-compose directly
-   docker-compose up --build
+   docker-compose up --build -d
    ```
 
    This will:
@@ -220,27 +220,12 @@ Oracle Enterprise Manager is available at `http://localhost:5500/em` for databas
 
 ```
 PhotoAlbum/
-??? src/main/java/com/photoalbum/    # Java source code
-?   ??? controller/                  # Spring MVC controllers
-?   ??? model/                       # JPA entities
-?   ??? repository/                  # Data access layer
-?   ??? service/                     # Business logic
-?   ??? config/                      # Configuration classes
-??? src/main/resources/              # Application resources
-?   ??? templates/                   # Thymeleaf templates
-?   ??? static/                      # Static web assets (CSS, JS)
-?   ??? application.properties       # Configuration
-├── oracle-init/                     # Oracle DB initialization scripts
-├── infra/                           # Azure infrastructure (Bicep)
-│   ├── main.bicep                   # Main template
-│   ├── container-app.bicep          # Container Apps configuration
-│   └── database.bicep               # PostgreSQL configuration
-├── docker-compose.yml               # Local development services
+├── src/                             # Java source code
+├── oracle-init/                     # Oracle initialization scripts
+├── docker-compose.yml               # Oracle + Application services
 ├── Dockerfile                       # Application container build
-├── azure-setup.sh                   # Azure infrastructure deployment
-├── deploy-to-azure.sh              # Application deployment
-├── pom.xml                          # Maven dependencies
-??? README.md                        # This file
+├── pom.xml                          # Maven dependencies and build config
+└── README.md                        # Project documentation
 ```
 
 ## Contributing
