@@ -45,7 +45,7 @@ public class PhotoFileController {
             logger.info("=== DEBUGGING: Serving photo request for ID {} ===", id);
             Optional<Photo> photoOpt = photoService.getPhotoById(id);
 
-            if (!photoOpt.isPresent()) {
+            if (photoOpt.isEmpty()) {
                 logger.warn("Photo with ID {} not found", id);
                 return ResponseEntity.notFound().build();
             }
