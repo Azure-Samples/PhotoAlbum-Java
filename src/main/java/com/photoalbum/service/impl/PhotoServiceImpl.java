@@ -12,16 +12,20 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 /**
- * Service implementation for photo operations including upload, retrieval, and deletion
+ * Service implementation for photo operations including upload, retrieval, and deletion.
+ * Optimized for OpenJDK's 2D library with proper configuration for consistent performance.
  */
 @Service
 @Transactional
@@ -40,6 +44,17 @@ public class PhotoServiceImpl implements PhotoService {
         this.photoRepository = photoRepository;
         this.maxFileSizeBytes = maxFileSizeBytes;
         this.allowedMimeTypes = Arrays.asList(allowedMimeTypes);
+
+        // Configure ImageIO for OpenJDK optimization
+        configureImageIO();
+    }
+
+    /**
+     * Configure ImageIO for optimal performance with OpenJDK's 2D library
+     */
+    private void configureImageIO() {
+        // Disable disk-based caching to improve performance with OpenJDK
+        ImageIO.setUseCache(false);
     }
 
     /**
@@ -118,12 +133,28 @@ public class PhotoServiceImpl implements PhotoService {
                 // Read file content for database storage
                 photoData = file.getBytes();
 
-                // Extract image dimensions from byte array
-                try (ByteArrayInputStream bis = new ByteArrayInputStream(photoData)) {
-                    BufferedImage image = ImageIO.read(bis);
-                    if (image != null) {
-                        width = image.getWidth();
-                        height = image.getHeight();
+                // Extract image dimensions using OpenJDK's ImageIO
+                // Using ImageInputStream for better performance with OpenJDK
+                try (ByteArrayInputStream bis = new ByteArrayInputStream(photoData);
+                     ImageInputStream iis = ImageIO.createImageInputStream(bis)) {
+
+                    if (iis != null) {
+                        Iterator<ImageReader> readers = ImageIO.getImageReaders(iis);
+                        if (readers.hasNext()) {
+                            ImageReader reader = readers.next();
+                            try {
+                                reader.setInput(iis, true);
+                                width = reader.getWidth(0);
+                                height = reader.getHeight(0);
+                                logger.debug("Successfully read image dimensions {}x{} for {} using {}",
+                                           width, height, file.getOriginalFilename(),
+                                           reader.getClass().getSimpleName());
+                            } finally {
+                                reader.dispose();
+                            }
+                        } else {
+                            logger.warn("No ImageReader found for {}", file.getOriginalFilename());
+                        }
                     }
                 }
             } catch (IOException ex) {
