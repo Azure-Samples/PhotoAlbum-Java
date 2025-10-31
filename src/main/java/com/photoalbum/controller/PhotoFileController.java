@@ -45,13 +45,13 @@ public class PhotoFileController {
             logger.info("=== DEBUGGING: Serving photo request for ID {} ===", id);
             Optional<Photo> photoOpt = photoService.getPhotoById(id);
 
-            if (!photoOpt.isPresent()) {
+            if (photoOpt.isEmpty()) {
                 logger.warn("Photo with ID {} not found", id);
                 return ResponseEntity.notFound().build();
             }
 
             Photo photo = photoOpt.get();
-            logger.info("Found photo: originalFileName={}, mimeType={}", 
+            logger.info("Found photo: originalFileName={}, mimeType={}",
                     photo.getOriginalFileName(), photo.getMimeType());
 
             // Get photo data from Oracle database BLOB
@@ -61,8 +61,8 @@ public class PhotoFileController {
                 return ResponseEntity.notFound().build();
             }
 
-            logger.info("Photo data retrieved: {} bytes, first 10 bytes: {}", 
-                    photoData.length, 
+            logger.info("Photo data retrieved: {} bytes, first 10 bytes: {}",
+                    photoData.length,
                     photoData.length >= 10 ? java.util.Arrays.toString(java.util.Arrays.copyOf(photoData, 10)) : "less than 10 bytes");
 
             // Create resource from byte array

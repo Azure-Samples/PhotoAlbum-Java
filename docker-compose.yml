@@ -21,7 +21,7 @@ services:
       retries: 15
       start_period: 180s
 
-  # Photo Album Java Application  
+  # Photo Album Java Application
   photoalbum-java-app:
     build:
       context: .

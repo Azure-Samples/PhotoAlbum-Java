@@ -83,7 +83,7 @@ public class PhotoServiceImpl implements PhotoService {
             if (!allowedMimeTypes.contains(file.getContentType().toLowerCase())) {
                 result.setSuccess(false);
                 result.setErrorMessage("File type not supported. Please upload JPEG, PNG, GIF, or WebP images.");
-                logger.warn("Upload rejected: Invalid file type {} for {}", 
+                logger.warn("Upload rejected: Invalid file type {} for {}",
                     file.getContentType(), file.getOriginalFilename());
                 return result;
             }
@@ -91,8 +91,8 @@ public class PhotoServiceImpl implements PhotoService {
             // Validate file size
             if (file.getSize() > maxFileSizeBytes) {
                 result.setSuccess(false);
-                result.setErrorMessage(String.format("File size exceeds %dMB limit.", maxFileSizeBytes / 1024 / 1024));
-                logger.warn("Upload rejected: File size {} exceeds limit for {}", 
+                result.setErrorMessage("File size exceeds %dMB limit.".formatted(maxFileSizeBytes / 1024 / 1024));
+                logger.warn("Upload rejected: File size {} exceeds limit for {}",
                     file.getSize(), file.getOriginalFilename());
                 return result;
             }
@@ -113,11 +113,11 @@ public class PhotoServiceImpl implements PhotoService {
             Integer width = null;
             Integer height = null;
             byte[] photoData = null;
-            
+
             try {
                 // Read file content for database storage
                 photoData = file.getBytes();
-                
+
                 // Extract image dimensions from byte array
                 try (ByteArrayInputStream bis = new ByteArrayInputStream(photoData)) {
                     BufferedImage image = ImageIO.read(bis);
@@ -155,7 +155,7 @@ public class PhotoServiceImpl implements PhotoService {
                 result.setSuccess(true);
                 result.setPhotoId(photo.getId());
 
-                logger.info("Successfully uploaded photo {} with ID {} to Oracle database", 
+                logger.info("Successfully uploaded photo {} with ID {} to Oracle database",
                     file.getOriginalFilename(), photo.getId());
             } catch (Exception ex) {
                 logger.error("Error saving photo to Oracle database for {}", file.getOriginalFilename(), ex);
@@ -178,7 +178,7 @@ public class PhotoServiceImpl implements PhotoService {
     public boolean deletePhoto(String id) {
         try {
             Optional<Photo> photoOpt = photoRepository.findById(id);
-            if (!photoOpt.isPresent()) {
+            if (photoOpt.isEmpty()) {
                 logger.warn("Photo with ID {} not found for deletion", id);
                 return false;
             }
@@ -203,7 +203,7 @@ public class PhotoServiceImpl implements PhotoService {
     @Transactional(readOnly = true)
     public Optional<Photo> getPreviousPhoto(Photo currentPhoto) {
         List<Photo> olderPhotos = photoRepository.findPhotosUploadedBefore(currentPhoto.getUploadedAt());
-        return olderPhotos.isEmpty() ? Optional.<Photo>empty() : Optional.of(olderPhotos.get(0));
+        return olderPhotos.isEmpty() ? Optional.<Photo>empty() : Optional.of(olderPhotos.getFirst());
     }
 
     /**
@@ -213,7 +213,7 @@ public class PhotoServiceImpl implements PhotoService {
     @Transactional(readOnly = true)
     public Optional<Photo> getNextPhoto(Photo currentPhoto) {
         List<Photo> newerPhotos = photoRepository.findPhotosUploadedAfter(currentPhoto.getUploadedAt());
-        return newerPhotos.isEmpty() ? Optional.<Photo>empty() : Optional.of(newerPhotos.get(0));
+        return newerPhotos.isEmpty() ? Optional.<Photo>empty() : Optional.of(newerPhotos.getFirst());
     }
 
     /**

@@ -5,7 +5,7 @@ A photo gallery application built with Spring Boot and Oracle Database, featurin
 ## Features
 
 - 📤 **Photo Upload**: Drag-and-drop or click to upload multiple photos
-- 🖼️ **Gallery View**: Responsive grid layout for browsing uploaded photos  
+- 🖼️ **Gallery View**: Responsive grid layout for browsing uploaded photos
 - 🔍 **Photo Detail View**: Click any photo to view full-size with metadata and navigation
 - 📊 **Metadata Display**: View file size, dimensions, aspect ratio, and upload timestamp
 - ⬅️➡️ **Photo Navigation**: Previous/Next buttons to browse through photos
@@ -61,7 +61,7 @@ A photo gallery application built with Spring Boot and Oracle Database, featurin
 
 ## Oracle Database
 - **Image**: `container-registry.oracle.com/database/express:21.3.0-xe`
-- **Ports**: 
+- **Ports**:
   - `1521` (database) - mapped to host port 1521
   - `5500` (Enterprise Manager) - mapped to host port 5500
 - **Database**: `XE` (Express Edition)
@@ -112,7 +112,7 @@ The application creates the following table structure in Oracle:
 
 ### Database BLOB Storage (Current Implementation)
 - **Photos**: Stored as BLOB data directly in the database
-- **Benefits**: 
+- **Benefits**:
   - No file system dependencies
   - ACID compliance for photo operations
   - Simplified backup and migration
@@ -159,7 +159,7 @@ java -jar target/photo-album-1.0.0.jar
    ```bash
    # Check container logs
    docker-compose logs oracle-db
-   
+
    # Increase Docker memory allocation to at least 4GB
    ```
 
