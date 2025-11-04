@@ -91,7 +91,7 @@ public class PhotoServiceImpl implements PhotoService {
             // Validate file size
             if (file.getSize() > maxFileSizeBytes) {
                 result.setSuccess(false);
-                result.setErrorMessage("File size exceeds %dMB limit.".formatted(maxFileSizeBytes / 1024 / 1024));
+                result.setErrorMessage(String.format("File size exceeds %dMB limit.", maxFileSizeBytes / 1024 / 1024));
                 logger.warn("Upload rejected: File size {} exceeds limit for {}", 
                     file.getSize(), file.getOriginalFilename());
                 return result;
