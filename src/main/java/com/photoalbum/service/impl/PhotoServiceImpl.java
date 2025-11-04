@@ -24,6 +24,7 @@ import java.util.UUID;
  * Service implementation for photo operations including upload, retrieval, and deletion
  */
 @Service
+@Transactional
 public class PhotoServiceImpl implements PhotoService {
 
     private static final Logger logger = LoggerFactory.getLogger(PhotoServiceImpl.class);
