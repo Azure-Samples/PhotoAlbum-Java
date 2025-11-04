@@ -74,7 +74,6 @@ public class PhotoServiceImpl implements PhotoService {
      * Upload a photo file
      */
     @Override
-    @Transactional
     public UploadResult uploadPhoto(MultipartFile file) {
         UploadResult result = new UploadResult();
         result.setFileName(file.getOriginalFilename());
