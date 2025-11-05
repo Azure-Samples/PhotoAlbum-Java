@@ -47,7 +47,7 @@ az group create \
 # Create PostgreSQL Flexible Server
 echo_info "Creating PostgreSQL server: $POSTGRES_SERVER_NAME"
 az postgres flexible-server create \
-    --resource-group "$RESOURCE_GROUP_NAME" \
+    --resource-group "$RESOURCE_GROUP" \
     --name "$POSTGRES_SERVER_NAME" \
     --location "$LOCATION" \
     --admin-user "$POSTGRES_ADMIN_USER" \
@@ -64,7 +64,7 @@ echo_info "PostgreSQL server created successfully!"
 # Create application database
 echo_info "Creating database: $POSTGRES_DATABASE_NAME"
 az postgres flexible-server db create \
-    --resource-group "$RESOURCE_GROUP_NAME" \
+    --resource-group "$RESOURCE_GROUP" \
     --server-name "$POSTGRES_SERVER_NAME" \
     --database-name "$POSTGRES_DATABASE_NAME" \
     --output none
@@ -72,7 +72,7 @@ az postgres flexible-server db create \
 # Configure firewall for Azure services
 echo_info "Configuring firewall rules..."
 az postgres flexible-server firewall-rule create \
-    --resource-group "$RESOURCE_GROUP_NAME" \
+    --resource-group "$RESOURCE_GROUP" \
     --name "$POSTGRES_SERVER_NAME" \
     --rule-name "AllowAzureServices" \
     --start-ip-address "0.0.0.0" \
@@ -84,7 +84,7 @@ CURRENT_IP=$(curl -s https://api.ipify.org)
 if [ -n "$CURRENT_IP" ]; then
     echo_info "Adding your current IP ($CURRENT_IP) to firewall..."
     az postgres flexible-server firewall-rule create \
-        --resource-group "$RESOURCE_GROUP_NAME" \
+        --resource-group "$RESOURCE_GROUP" \
         --name "$POSTGRES_SERVER_NAME" \
         --rule-name "AllowCurrentIP" \
         --start-ip-address "$CURRENT_IP" \
@@ -95,7 +95,7 @@ fi
 # Get server FQDN
 echo_info "Getting server connection details..."
 SERVER_FQDN=$(az postgres flexible-server show \
-    --resource-group "$RESOURCE_GROUP_NAME" \
+    --resource-group "$RESOURCE_GROUP" \
     --name "$POSTGRES_SERVER_NAME" \
     --query "fullyQualifiedDomainName" \
     --output tsv)
@@ -144,6 +144,10 @@ az postgres flexible-server execute \
     --querytext "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO photoalbum;" || echo_warning "Default privileges may have failed, continuing..."
 
 echo_info "Database user and schema setup completed! Hibernate will create and manage tables."
+
+# Store the datasource URL for later use
+DATASOURCE_URL="jdbc:postgresql://$SERVER_FQDN:5432/$POSTGRES_DATABASE_NAME"
+echo_info "Datasource URL: $DATASOURCE_URL"
 
 # Create Azure Container Registry
 echo_info "Creating Azure Container Registry: $ACR_NAME"
