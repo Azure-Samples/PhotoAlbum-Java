@@ -15,8 +15,13 @@ $RESOURCE_GROUP = "photo-album-resources-${RANDOM_SUFFIX}"
 $LOCATION = "westus3"
 $ACR_NAME = "photoalbumacr$(Get-Random -Maximum 99999)"
 $AKS_NODE_VM_SIZE = "Standard_D8ds_v5"
-$PostgreSQL_NAME = "$RESOURCE_GROUP-postgresql"
+$POSTGRES_SERVER_NAME = "$RESOURCE_GROUP-postgresql"
 $PostgreSQL_SKU = "Standard_D4ads_v5"
+$POSTGRES_ADMIN_USER="photoalbum_admin"
+$POSTGRES_ADMIN_PASSWORD="P@ssw0rd123!"
+$POSTGRES_DATABASE_NAME="photoalbum"
+$POSTGRES_APP_USER="photoalbum"
+$POSTGRES_APP_PASSWORD="photoalbum"
 
 Write-Host "${YELLOW}Using default subscription...${NC}" -NoNewline
 Write-Host ""
@@ -75,21 +80,20 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 # Create PostgreSQL Flexible Server
-Write-Host "${YELLOW}Creating PostgreSQL Flexible Server: ${PostgreSQL_NAME}${NC}" -NoNewline
+Write-Host "${YELLOW}Creating PostgreSQL Flexible Server: ${POSTGRES_SERVER_NAME}${NC}" -NoNewline
 Write-Host ""
-$POSTGRES_ADMIN_USER = "pgadmin"
-$POSTGRES_ADMIN_PASSWORD = -join ((1..16) | ForEach-Object { 
-    [char](Get-Random -Minimum 33 -Maximum 126)
-})
 
 az postgres flexible-server create `
-    --resource-group $RESOURCE_GROUP `
-    --name $PostgreSQL_NAME `
+    --resource-group "$RESOURCE_GROUP" `
+    --name "$POSTGRES_SERVER_NAME" `
+    --location "$LOCATION" `
+    --admin-user "$POSTGRES_ADMIN_USER" `
+    --admin-password "$POSTGRES_ADMIN_PASSWORD" `
+    --version "15" `
     --sku-name $PostgreSQL_SKU `
-    --location $LOCATION `
-    --admin-user $POSTGRES_ADMIN_USER `
-    --admin-password $POSTGRES_ADMIN_PASSWORD `
-    --public-access 0.0.0.0-255.255.255.255
+    --storage-size "32" `
+    --backup-retention "7" `
+    --public-access "0.0.0.0" `
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host "${RED}Failed to create PostgreSQL Flexible Server${NC}" -NoNewline
@@ -97,13 +101,149 @@ if ($LASTEXITCODE -ne 0) {
     exit 1
 }
 
+# Create application database
+Write-Host "${YELLOW}Creating database: ${POSTGRES_DATABASE_NAME}${NC}" -NoNewline
+Write-Host ""
+
+az postgres flexible-server db create `
+    --resource-group "$RESOURCE_GROUP" `
+    --server-name "$POSTGRES_SERVER_NAME" `
+    --database-name "$POSTGRES_DATABASE_NAME" `
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "${RED}Failed to create PostgreSQL database${NC}" -NoNewline
+    Write-Host ""
+    exit 1
+}
+
+# Configure firewall for Azure services
+Write-Host "${YELLOW}Configuring firewall rules...${NC}" -NoNewline
+Write-Host ""
+az postgres flexible-server firewall-rule create `
+    --resource-group "$RESOURCE_GROUP" `
+    --name "$POSTGRES_SERVER_NAME" `
+    --rule-name "AllowAzureServices" `
+    --start-ip-address "0.0.0.0" `
+    --end-ip-address "0.0.0.0" `
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "${RED}Failed to configure firewall rules${NC}" -NoNewline
+    Write-Host ""
+    exit 1
+}
+
+# Add current IP to firewall
+$CURRENT_IP = (Invoke-RestMethod -Uri "https://api.ipify.org" -UseBasicParsing).Trim()
+if ($CURRENT_IP) {
+    Write-Host "${YELLOW}Adding your current IP ($CURRENT_IP) to firewall...${NC}" -NoNewline
+    Write-Host ""
+    az postgres flexible-server firewall-rule create `
+        --resource-group "$RESOURCE_GROUP" `
+        --name "$POSTGRES_SERVER_NAME" `
+        --rule-name "AllowCurrentIP" `
+        --start-ip-address "$CURRENT_IP" `
+        --end-ip-address "$CURRENT_IP" `
+
+    if ($LASTEXITCODE -ne 0) {
+    Write-Host "${RED}Failed to add your current IP to firewall${NC}" -NoNewline
+    Write-Host ""
+    exit 1
+}
+}
+
+# Get server FQDN
+Write-Host "${YELLOW}Getting server connection details...${NC}" -NoNewline
+Write-Host ""
+$SERVER_FQDN = az postgres flexible-server show `
+    --resource-group "$RESOURCE_GROUP" `
+    --name "$POSTGRES_SERVER_NAME" `
+    --query "fullyQualifiedDomainName" `
+    --output tsv
+
+# Wait a moment for server to be fully ready
+Write-Host "${YELLOW}Waiting for server to be fully ready...${NC}" -NoNewline
+Write-Host ""
+Start-Sleep -Seconds 30
+
+# Setup application user and tables
+Write-Host "${YELLOW}Setting up database user and tables...${NC}" -NoNewline
+Write-Host ""
+
+# Create application user using the more reliable execute command
+Write-Host "${YELLOW}Creating application user...${NC}" -NoNewline
+Write-Host ""
+try {
+    az postgres flexible-server execute `
+        --name "$POSTGRES_SERVER_NAME" `
+        --admin-user "$POSTGRES_ADMIN_USER" `
+        --admin-password "$POSTGRES_ADMIN_PASSWORD" `
+        --database-name "postgres" `
+        --querytext "CREATE USER photoalbum WITH PASSWORD 'photoalbum';"
+} catch {
+    Write-Host "${YELLOW}User may already exist, continuing...${NC}" -NoNewline
+    Write-Host ""
+}
+
+# Grant database connection privileges
+Write-Host "${YELLOW}Granting database connection privileges...${NC}" -NoNewline
+Write-Host ""
+try {
+    az postgres flexible-server execute `
+        --name "$POSTGRES_SERVER_NAME" `
+        --admin-user "$POSTGRES_ADMIN_USER" `
+        --admin-password "$POSTGRES_ADMIN_PASSWORD" `
+        --database-name "postgres" `
+        --querytext "GRANT CONNECT ON DATABASE photoalbum TO photoalbum;"
+} catch {
+    Write-Host "${YELLOW}Grant may have failed, continuing...${NC}" -NoNewline
+    Write-Host ""
+}
+
+# Grant schema privileges on the photoalbum database
+Write-Host "${YELLOW}Granting schema privileges...${NC}" -NoNewline
+Write-Host ""
+try {
+    az postgres flexible-server execute `
+        --name "$POSTGRES_SERVER_NAME" `
+        --admin-user "$POSTGRES_ADMIN_USER" `
+        --admin-password "$POSTGRES_ADMIN_PASSWORD" `
+        --database-name "photoalbum" `
+        --querytext "GRANT ALL PRIVILEGES ON SCHEMA public TO photoalbum;"
+} catch {
+    Write-Host "${YELLOW}Schema privileges may have failed, continuing...${NC}" -NoNewline
+    Write-Host ""
+}
+
+# Grant privileges on future objects (so Hibernate can create and manage tables)
+Write-Host "${YELLOW}Setting up future object privileges for Hibernate...${NC}" -NoNewline
+Write-Host ""
+try {
+    az postgres flexible-server execute `
+        --name "$POSTGRES_SERVER_NAME" `
+        --admin-user "$POSTGRES_ADMIN_USER" `
+        --admin-password "$POSTGRES_ADMIN_PASSWORD" `
+        --database-name "photoalbum" `
+        --querytext "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO photoalbum;"
+} catch {
+    Write-Host "${YELLOW}Default privileges may have failed, continuing...${NC}" -NoNewline
+    Write-Host ""
+}
+
+Write-Host "${GREEN}Database user and schema setup completed! Hibernate will create and manage tables.${NC}" -NoNewline
+Write-Host ""
+
+# Store the datasource URL for later use
+$DATASOURCE_URL = "jdbc:postgresql://${SERVER_FQDN}:5432/$POSTGRES_DATABASE_NAME"
+Write-Host "${YELLOW}Datasource URL: $DATASOURCE_URL${NC}" -NoNewline
+Write-Host ""
+
 # Store PostgreSQL credentials in environment variables
 Write-Host "${YELLOW}Storing PostgreSQL credentials in environment variables...${NC}" -NoNewline
 Write-Host ""
-$env:POSTGRES_SERVER = "${PostgreSQL_NAME}.postgres.database.azure.com"
-$env:POSTGRES_USER = $POSTGRES_ADMIN_USER
-$env:POSTGRES_PASSWORD = $POSTGRES_ADMIN_PASSWORD
-$env:POSTGRES_CONNECTION_STRING = "jdbc:postgresql://${env:POSTGRES_SERVER}:5432/postgres?user=${POSTGRES_ADMIN_USER}&password=${POSTGRES_ADMIN_PASSWORD}&sslmode=require"
+$env:POSTGRES_SERVER = "${POSTGRES_SERVER_NAME}.postgres.database.azure.com"
+$env:POSTGRES_USER = $POSTGRES_APP_USER
+$env:POSTGRES_PASSWORD = $POSTGRES_APP_PASSWORD
+$env:POSTGRES_CONNECTION_STRING = $DATASOURCE_URL
 
 Write-Host "${GREEN}=== Setup Complete ===${NC}" -NoNewline
 Write-Host ""
@@ -114,7 +254,7 @@ Write-Host ""
 Write-Host "Resource Group: $RESOURCE_GROUP"
 Write-Host "Container Registry: $ACR_NAME"
 Write-Host "AKS Cluster: $RESOURCE_GROUP-aks"
-Write-Host "PostgreSQL Server: $PostgreSQL_NAME"
+Write-Host "PostgreSQL Server: $POSTGRES_SERVER_NAME"
 Write-Host "Location: $LOCATION"
 Write-Host ""
 Write-Host "${GREEN}PostgreSQL Connection Details (stored in environment variables):${NC}" -NoNewline
