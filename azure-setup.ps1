@@ -245,6 +245,30 @@ $env:POSTGRES_USER = $POSTGRES_APP_USER
 $env:POSTGRES_PASSWORD = $POSTGRES_APP_PASSWORD
 $env:POSTGRES_CONNECTION_STRING = $DATASOURCE_URL
 
+# Write environment variables to .env file
+Write-Host "${YELLOW}Writing environment variables to .env file...${NC}" -NoNewline
+Write-Host ""
+$SCRIPT_ROOT = Split-Path -Parent $MyInvocation.MyCommand.Path
+$ENV_FILE = Join-Path $SCRIPT_ROOT ".env"
+
+$ENV_CONTENT = @"
+# Azure PostgreSQL Configuration
+POSTGRES_SERVER=$env:POSTGRES_SERVER
+POSTGRES_USER=$env:POSTGRES_USER
+POSTGRES_PASSWORD=$env:POSTGRES_PASSWORD
+POSTGRES_CONNECTION_STRING=$env:POSTGRES_CONNECTION_STRING
+
+# Azure Resources
+RESOURCE_GROUP=$RESOURCE_GROUP
+ACR_NAME=$ACR_NAME
+AKS_CLUSTER_NAME=$RESOURCE_GROUP-aks
+LOCATION=$LOCATION
+"@
+
+$ENV_CONTENT | Out-File -FilePath $ENV_FILE -Encoding UTF8
+Write-Host "${GREEN}Environment variables written to: $ENV_FILE${NC}" -NoNewline
+Write-Host ""
+
 Write-Host "${GREEN}=== Setup Complete ===${NC}" -NoNewline
 Write-Host ""
 
@@ -257,9 +281,12 @@ Write-Host "AKS Cluster: $RESOURCE_GROUP-aks"
 Write-Host "PostgreSQL Server: $POSTGRES_SERVER_NAME"
 Write-Host "Location: $LOCATION"
 Write-Host ""
-Write-Host "${GREEN}PostgreSQL Connection Details (stored in environment variables):${NC}" -NoNewline
+Write-Host "${GREEN}PostgreSQL Connection Details (stored in environment variables and .env file):${NC}" -NoNewline
 Write-Host ""
 Write-Host "POSTGRES_SERVER: $env:POSTGRES_SERVER"
 Write-Host "POSTGRES_USER: $env:POSTGRES_USER"
 Write-Host "POSTGRES_PASSWORD: $env:POSTGRES_PASSWORD"
 Write-Host "POSTGRES_CONNECTION_STRING: $env:POSTGRES_CONNECTION_STRING"
+Write-Host ""
+Write-Host "${GREEN}All configuration has been saved to .env file in the project root.${NC}" -NoNewline
+Write-Host ""
