@@ -77,17 +77,33 @@ if ($LASTEXITCODE -ne 0) {
 # Create PostgreSQL Flexible Server
 Write-Host "${YELLOW}Creating PostgreSQL Flexible Server: ${PostgreSQL_NAME}${NC}" -NoNewline
 Write-Host ""
+$POSTGRES_ADMIN_USER = "pgadmin"
+$POSTGRES_ADMIN_PASSWORD = -join ((1..16) | ForEach-Object { 
+    [char](Get-Random -Minimum 33 -Maximum 126)
+})
+
 az postgres flexible-server create `
     --resource-group $RESOURCE_GROUP `
     --name $PostgreSQL_NAME `
     --sku-name $PostgreSQL_SKU `
-    --location $LOCATION
+    --location $LOCATION `
+    --admin-user $POSTGRES_ADMIN_USER `
+    --admin-password $POSTGRES_ADMIN_PASSWORD `
+    --public-access 0.0.0.0-255.255.255.255
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host "${RED}Failed to create PostgreSQL Flexible Server${NC}" -NoNewline
     Write-Host ""
     exit 1
 }
+
+# Store PostgreSQL credentials in environment variables
+Write-Host "${YELLOW}Storing PostgreSQL credentials in environment variables...${NC}" -NoNewline
+Write-Host ""
+$env:POSTGRES_SERVER = "${PostgreSQL_NAME}.postgres.database.azure.com"
+$env:POSTGRES_USER = $POSTGRES_ADMIN_USER
+$env:POSTGRES_PASSWORD = $POSTGRES_ADMIN_PASSWORD
+$env:POSTGRES_CONNECTION_STRING = "jdbc:postgresql://${env:POSTGRES_SERVER}:5432/postgres?user=${POSTGRES_ADMIN_USER}&password=${POSTGRES_ADMIN_PASSWORD}&sslmode=require"
 
 Write-Host "${GREEN}=== Setup Complete ===${NC}" -NoNewline
 Write-Host ""
@@ -100,3 +116,10 @@ Write-Host "Container Registry: $ACR_NAME"
 Write-Host "AKS Cluster: $RESOURCE_GROUP-aks"
 Write-Host "PostgreSQL Server: $PostgreSQL_NAME"
 Write-Host "Location: $LOCATION"
+Write-Host ""
+Write-Host "${GREEN}PostgreSQL Connection Details (stored in environment variables):${NC}" -NoNewline
+Write-Host ""
+Write-Host "POSTGRES_SERVER: $env:POSTGRES_SERVER"
+Write-Host "POSTGRES_USER: $env:POSTGRES_USER"
+Write-Host "POSTGRES_PASSWORD: $env:POSTGRES_PASSWORD"
+Write-Host "POSTGRES_CONNECTION_STRING: $env:POSTGRES_CONNECTION_STRING"
