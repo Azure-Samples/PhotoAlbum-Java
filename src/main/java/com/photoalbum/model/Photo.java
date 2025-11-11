@@ -34,7 +34,7 @@ public class Photo {
     private String originalFileName;
 
     /**
-     * Binary photo data stored directly in Oracle database
+     * Binary photo data stored directly in PostgreSQL database
      */
     @Lob
     @Column(name = "photo_data", nullable = true)
@@ -57,10 +57,11 @@ public class Photo {
 
     /**
      * File size in bytes
+     * Migrated from Oracle to PostgreSQL according to java check item 1: Convert all table and column names from uppercase to lowercase in JPA annotations.
      */
     @NotNull
     @Positive
-    @Column(name = "file_size", nullable = false, columnDefinition = "NUMBER(19,0)")
+    @Column(name = "file_size", nullable = false)
     private Long fileSize;
 
     /**
@@ -73,9 +74,10 @@ public class Photo {
 
     /**
      * Timestamp of upload
+     * Migrated from Oracle to PostgreSQL according to java check item 1: Convert all table and column names from uppercase to lowercase in JPA annotations.
      */
     @NotNull
-    @Column(name = "uploaded_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT SYSTIMESTAMP")
+    @Column(name = "uploaded_at", nullable = false)
     private LocalDateTime uploadedAt;
 
     /**
