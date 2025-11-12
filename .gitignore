@@ -280,3 +280,7 @@ Thumbs.db
 
 # Docker
 .dockerignore
+
+# Generated Kubernetes manifests (generated from templates using .env)
+k8s/deployment.yaml
+k8s/secret.yaml

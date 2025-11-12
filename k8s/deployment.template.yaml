@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: photo-album
-        image: photoalbumacr7135.azurecr.io/photo-album:latest
+        image: {{ACR_NAME}}.azurecr.io/photo-album:latest
         ports:
         - containerPort: 8080
           name: http

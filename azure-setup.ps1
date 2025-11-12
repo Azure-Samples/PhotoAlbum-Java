@@ -79,8 +79,8 @@ if ($LASTEXITCODE -ne 0) {
     exit 1
 }
 
-# Attach ACR to AKS cluster
-Write-Host "${YELLOW}Attaching ACR to AKS cluster for image pull access...${NC}" -NoNewline
+# Grant AKS permission to pull images from ACR
+Write-Host "${YELLOW}Granting AKS permission to pull images from ACR: $ACR_NAME${NC}" -NoNewline
 Write-Host ""
 az aks update `
     --resource-group $RESOURCE_GROUP `
