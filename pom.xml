@@ -18,7 +18,7 @@
     <packaging>jar</packaging>
 
     <name>Photo Album</name>
-    <description>A simple photo storage and gallery application built with Spring Boot and Oracle DB</description>
+    <description>A simple photo storage and gallery application built with Spring Boot and PostgreSQL</description>
 
     <properties>
         <java.version>1.8</java.version>
@@ -46,10 +46,13 @@
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
 
-        <!-- Oracle JDBC Driver -->
+        <!-- Migrated from Oracle to PostgreSQL according to Build file check item 1: Replace Oracle JDBC driver with PostgreSQL driver dependency. -->
+        <!-- Migrated from Oracle to PostgreSQL according to Build file check item 5: Verify newly added dependencies are CVE-free. -->
+        <!-- PostgreSQL JDBC Driver - version overridden to fix CVE-2024-1597 and CVE-2025-49146 -->
         <dependency>
-            <groupId>com.oracle.database.jdbc</groupId>
-            <artifactId>ojdbc8</artifactId>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.7.7</version>
             <scope>runtime</scope>
         </dependency>
 
