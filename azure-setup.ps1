@@ -79,6 +79,20 @@ if ($LASTEXITCODE -ne 0) {
     exit 1
 }
 
+# Grant AKS permission to pull images from ACR
+Write-Host "${YELLOW}Granting AKS permission to pull images from ACR: $ACR_NAME${NC}" -NoNewline
+Write-Host ""
+az aks update `
+    --resource-group $RESOURCE_GROUP `
+    --name "$RESOURCE_GROUP-aks" `
+    --attach-acr $ACR_NAME
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "${RED}Failed to attach ACR to AKS cluster${NC}" -NoNewline
+    Write-Host ""
+    exit 1
+}
+
 # Create PostgreSQL Flexible Server
 Write-Host "${YELLOW}Creating PostgreSQL Flexible Server: ${POSTGRES_SERVER_NAME}${NC}" -NoNewline
 Write-Host ""
