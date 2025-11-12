@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: photo-album
+  namespace: photo-album
+  labels:
+    app: photo-album
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: photo-album
+  template:
+    metadata:
+      labels:
+        app: photo-album
+    spec:
+      containers:
+      - name: photo-album
+        image: photoalbumacr7135.azurecr.io/photo-album:latest
+        ports:
+        - containerPort: 8080
+          name: http
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "docker"
+        - name: SPRING_DATASOURCE_URL
+          valueFrom:
+            secretKeyRef:
+              name: photo-album-db-secret
+              key: SPRING_DATASOURCE_URL
+        - name: SPRING_DATASOURCE_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: photo-album-db-secret
+              key: SPRING_DATASOURCE_USERNAME
+        - name: SPRING_DATASOURCE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: photo-album-db-secret
+              key: SPRING_DATASOURCE_PASSWORD
+        - name: JAVA_OPTS
+          value: "-Xmx512m -Xms256m"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3

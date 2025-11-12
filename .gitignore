@@ -244,7 +244,7 @@ PhotoAlbum/wwwroot/uploads/*
 /.appmod/
 
 # Environment variables
-.env
+# .env
 
 # Azure Developer CLI
 .azure/
