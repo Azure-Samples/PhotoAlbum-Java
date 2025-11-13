@@ -1,0 +1,27 @@
+{
+  "migration_id": "rujche-migration-project-1113_20251113_100216",
+  "generated_at": "2025-11-13T10:02:16.052290",
+  "source_project": "c:\\Users\\rujche\\Work\\git-repositories\\main\\PhotoAlbum-Java\\.github\\postgres-migrations\\rujche-migration-project-1113",
+  "migration_summary": {
+    "total_objects": 3,
+    "total_chunks": 1,
+    "completed_chunks": 1,
+    "failed_chunks": 0,
+    "success_rate_percent": 100.0
+  },
+  "object_type_breakdown": {
+    "INDEX": 1,
+    "SCHEMA": 1,
+    "TABLE": 1
+  },
+  "deployment_artifacts": {
+    "deploy_sql_generated": true,
+    "reports_generated": true,
+    "application_guidance_generated": true
+  },
+  "quality_metrics": {
+    "objects_requiring_review": 1,
+    "manual_interventions": 0,
+    "conversion_warnings": 0
+  }
+}

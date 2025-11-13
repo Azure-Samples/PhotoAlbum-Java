@@ -1,0 +1,32 @@
+{
+  "migration_id": "rujche-migration-project-1113_20251113_100216",
+  "generated_at": "2025-11-13T10:02:16.063807",
+  "impact_summary": {
+    "overall_impact": "medium",
+    "estimated_effort_days": 5,
+    "risk_level": "low"
+  },
+  "categories": {
+    "data_type_changes": {
+      "count": 1,
+      "impact": "medium",
+      "effort_hours": 8
+    },
+    "sql_syntax_changes": {
+      "count": 1,
+      "impact": "low",
+      "effort_hours": 4
+    },
+    "sequence_handling": {
+      "count": 1,
+      "impact": "low",
+      "effort_hours": 2
+    }
+  },
+  "recommendations": [
+    "Allocate 1-2 weeks for thorough application testing",
+    "Update development team on PostgreSQL-specific patterns",
+    "Plan staged deployment with rollback capability",
+    "Monitor application performance after migration"
+  ]
+}

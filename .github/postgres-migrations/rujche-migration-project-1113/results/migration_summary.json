@@ -1,0 +1,47 @@
+{
+  "migration_project": {
+    "name": "rujche-migration-project-1113",
+    "path": "c:\\Users\\rujche\\Work\\git-repositories\\main\\PhotoAlbum-Java\\.github\\postgres-migrations\\rujche-migration-project-1113",
+    "created_at": "2025-11-13T10:00:43.617908",
+    "completed_at": "2025-11-13T10:02:16.011296"
+  },
+  "extraction": {
+    "total_objects": 3,
+    "schemas_migrated": [
+      "PHOTOALBUM"
+    ]
+  },
+  "conversion": {
+    "total_chunks": 1,
+    "completed_chunks": 1,
+    "failed_chunks": 0,
+    "conversion_rate": 1.0
+  },
+  "review_tasks": {
+    "total_tasks": 1,
+    "resolved_tasks": 0
+  },
+  "export": {
+    "exported_at": "2025-11-13T10:02:16.011296",
+    "artifacts_generated": true
+  },
+  "object_statistics": {
+    "total_chunks": 1,
+    "completed_chunks": 1,
+    "validated_chunks": 1,
+    "total_objects": 3,
+    "total_converted": 3,
+    "total_skipped": 0,
+    "overall_conversion_rate": 100.0,
+    "chunks": [
+      {
+        "name": "chunk-000",
+        "total_objects": 3,
+        "converted": 3,
+        "skipped": 0,
+        "status": "passed",
+        "completed": true
+      }
+    ]
+  }
+}
