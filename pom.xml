@@ -48,9 +48,12 @@
 
         <!-- PostgreSQL JDBC Driver -->
         <!-- Migrated from Oracle to PostgreSQL according to Build file check item 1: Replace Oracle JDBC driver with PostgreSQL driver dependency. -->
+        <!-- CVE Fix: Explicitly set to 42.7.2 to fix CVE-2024-1597 (CRITICAL severity - SQL injection in simple query mode) -->
+        <!-- Note: Spring Boot 2.7.18 manages PostgreSQL at 42.3.8 which has this CVE, so we override to secure version -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
+            <version>42.7.2</version>
             <scope>runtime</scope>
         </dependency>
 
@@ -61,10 +64,11 @@
         </dependency>
 
         <!-- Commons IO for file operations -->
+        <!-- CVE Fix: Upgraded from 2.11.0 to 2.14.0 to fix CVE-2024-47554 (HIGH severity - DoS attack on XmlStreamReader) -->
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.11.0</version>
+            <version>2.14.0</version>
         </dependency>
 
         <!-- Image processing -->
