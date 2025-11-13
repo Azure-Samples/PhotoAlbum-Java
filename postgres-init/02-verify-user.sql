@@ -8,6 +8,6 @@
 SELECT current_user, current_database();
 
 -- List available tables (will be empty initially)
-SELECT table_name 
-FROM information_schema.tables 
+SELECT table_name
+FROM information_schema.tables
 WHERE table_schema = 'public';

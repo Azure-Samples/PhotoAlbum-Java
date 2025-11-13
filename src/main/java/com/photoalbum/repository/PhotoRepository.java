@@ -22,7 +22,7 @@ public interface PhotoRepository extends JpaRepository<Photo, String> {
     @Query(value = "SELECT ID, ORIGINAL_FILE_NAME, PHOTO_DATA, STORED_FILE_NAME, FILE_PATH, FILE_SIZE, " +
                    "MIME_TYPE, UPLOADED_AT, WIDTH, HEIGHT " +
                    "FROM PHOTOS " +
-                   "ORDER BY UPLOADED_AT DESC", 
+                   "ORDER BY UPLOADED_AT DESC",
            nativeQuery = true)
     List<Photo> findAllOrderByUploadedAtDesc();
 
@@ -37,7 +37,7 @@ public interface PhotoRepository extends JpaRepository<Photo, String> {
                    "FROM PHOTOS " +
                    "WHERE UPLOADED_AT < :uploadedAt " +
                    "ORDER BY UPLOADED_AT DESC" +
-                   ") WHERE ROWNUM <= 10", 
+                   ") WHERE ROWNUM <= 10",
            nativeQuery = true)
     List<Photo> findPhotosUploadedBefore(@Param("uploadedAt") LocalDateTime uploadedAt);
 
@@ -51,12 +51,12 @@ public interface PhotoRepository extends JpaRepository<Photo, String> {
                    "MIME_TYPE, UPLOADED_AT, WIDTH, HEIGHT " +
                    "FROM PHOTOS " +
                    "WHERE UPLOADED_AT > :uploadedAt " +
-                   "ORDER BY UPLOADED_AT ASC", 
+                   "ORDER BY UPLOADED_AT ASC",
            nativeQuery = true)
     List<Photo> findPhotosUploadedAfter(@Param("uploadedAt") LocalDateTime uploadedAt);
 
     /**
-     * Find photos by upload month using Oracle TO_CHAR function - Oracle specific
+     * Find photos by upload month using TO_CHAR function
      * @param year The year to search for
      * @param month The month to search for
      * @return List of photos uploaded in the specified month
@@ -66,12 +66,12 @@ public interface PhotoRepository extends JpaRepository<Photo, String> {
                    "FROM PHOTOS " +
                    "WHERE TO_CHAR(UPLOADED_AT, 'YYYY') = :year " +
                    "AND TO_CHAR(UPLOADED_AT, 'MM') = :month " +
-                   "ORDER BY UPLOADED_AT DESC", 
+                   "ORDER BY UPLOADED_AT DESC",
            nativeQuery = true)
     List<Photo> findPhotosByUploadMonth(@Param("year") String year, @Param("month") String month);
 
     /**
-     * Get paginated photos using Oracle ROWNUM - Oracle specific pagination
+     * Get paginated photos using ROWNUM pagination
      * @param startRow Starting row number (1-based)
      * @param endRow Ending row number
      * @return List of photos within the specified row range
@@ -82,12 +82,12 @@ public interface PhotoRepository extends JpaRepository<Photo, String> {
                    "MIME_TYPE, UPLOADED_AT, WIDTH, HEIGHT " +
                    "FROM PHOTOS ORDER BY UPLOADED_AT DESC" +
                    ") P WHERE ROWNUM <= :endRow" +
-                   ") WHERE RN >= :startRow", 
+                   ") WHERE RN >= :startRow",
            nativeQuery = true)
     List<Photo> findPhotosWithPagination(@Param("startRow") int startRow, @Param("endRow") int endRow);
 
     /**
-     * Find photos with file size statistics using Oracle analytical functions - Oracle specific
+     * Find photos with file size statistics using analytical functions
      * @return List of photos with running totals and rankings
      */
     @Query(value = "SELECT ID, ORIGINAL_FILE_NAME, PHOTO_DATA, STORED_FILE_NAME, FILE_PATH, FILE_SIZE, " +
@@ -95,7 +95,7 @@ public interface PhotoRepository extends JpaRepository<Photo, String> {
                    "RANK() OVER (ORDER BY FILE_SIZE DESC) as SIZE_RANK, " +
                    "SUM(FILE_SIZE) OVER (ORDER BY UPLOADED_AT ROWS UNBOUNDED PRECEDING) as RUNNING_TOTAL " +
                    "FROM PHOTOS " +
-                   "ORDER BY UPLOADED_AT DESC", 
+                   "ORDER BY UPLOADED_AT DESC",
            nativeQuery = true)
     List<Object[]> findPhotosWithStatistics();
 }
