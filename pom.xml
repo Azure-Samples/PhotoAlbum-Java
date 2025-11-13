@@ -85,9 +85,12 @@
         </dependency>
 
         <!-- H2 Database for testing -->
+        <!-- CVE Fix: Explicitly set to 2.3.232 to fix CVE-2022-45868 (HIGH severity - password exposure in CLI) -->
+        <!-- Note: Spring Boot 2.7.18 manages H2 at 2.1.214 which has this CVE, so we override to secure version -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
+            <version>2.3.232</version>
             <scope>test</scope>
         </dependency>
 
