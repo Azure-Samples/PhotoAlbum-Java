@@ -39,13 +39,26 @@ $CATALINA_HOME/bin/catalina.sh run
 # Access: http://localhost:8080/photo-album/
 ```
 
+### 3. Stop Server
+
+**GlassFish:**
+```bash
+$GLASSFISH_HOME/bin/asadmin stop-domain domain1
+```
+
+**WebSphere Liberty:**
+```bash
+$WLP_HOME/bin/server stop defaultServer
+```
+
+**Tomcat:**
+```bash
+$CATALINA_HOME/bin/catalina.sh stop
+```
+
 ## Tech Stack
 
-- Java Servlet 3.1+ / JSP 2.3 / JSTL 1.2
+- Jakarta Servlet 6.0 / JSP 3.1 / JSTL 3.0
 - Pure JDBC (no ORM)
-- H2 in-memory database (auto-initialized)
-- Apache Ant build
-
-## License
-
-MIT
+- H2 2.2.224 in-memory database (auto-initialized)
+- Apache Ant 1.9+ build
