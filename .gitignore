@@ -253,18 +253,26 @@ PhotoAlbum/wwwroot/uploads/*
 *.log
 
 # Maven
-target/
+**/target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
 
-# Package files (except lib directory dependencies)
+# Package files
 *.war
 *.ear
 *.zip
 *.tar.gz
 *.rar
 
-# JAR files (but keep lib/ directory JARs for Ant project)
+# JAR files (Maven will manage dependencies)
 *.jar
-!lib/*.jar
 
 # IDE
 .idea/
