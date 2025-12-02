@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="photo-album" default="war" basedir=".">
+    <!-- ========================================== -->
+    <!-- Properties                                  -->
+    <!-- ========================================== -->
+    <property name="src.dir" value="src"/>
+    <property name="resources.dir" value="resources"/>
+    <property name="webapp.dir" value="webapp"/>
+    <property name="lib.dir" value="lib"/>
+    <property name="build.dir" value="build"/>
+    <property name="classes.dir" value="${build.dir}/classes"/>
+    <property name="dist.dir" value="dist"/>
+    <property name="war.name" value="photo-album.war"/>
+
+    <!-- Java compilation properties -->
+    <property name="java.source" value="1.8"/>
+    <property name="java.target" value="1.8"/>
+    <property name="encoding" value="UTF-8"/>
+
+    <!-- ========================================== -->
+    <!-- Classpath                                  -->
+    <!-- ========================================== -->
+    <path id="compile.classpath">
+        <fileset dir="${lib.dir}">
+            <include name="**/*.jar"/>
+        </fileset>
+    </path>
+
+    <!-- ========================================== -->
+    <!-- Targets                                    -->
+    <!-- ========================================== -->
+
+    <!-- Clean target: removes build and dist directories -->
+    <target name="clean" description="Clean build and dist directories">
+        <delete dir="${build.dir}"/>
+        <delete dir="${dist.dir}"/>
+        <echo message="Cleaned build and dist directories"/>
+    </target>
+
+    <!-- Init target: creates necessary directories -->
+    <target name="init" description="Initialize build directories">
+        <mkdir dir="${build.dir}"/>
+        <mkdir dir="${classes.dir}"/>
+        <mkdir dir="${dist.dir}"/>
+        <echo message="Created build directories"/>
+    </target>
+
+    <!-- Compile target: compiles Java source files -->
+    <target name="compile" depends="init" description="Compile Java sources">
+        <javac srcdir="${src.dir}"
+               destdir="${classes.dir}"
+               source="${java.source}"
+               target="${java.target}"
+               encoding="${encoding}"
+               includeantruntime="false"
+               debug="true">
+            <classpath refid="compile.classpath"/>
+        </javac>
+
+        <!-- Copy resources to classes directory -->
+        <copy todir="${classes.dir}">
+            <fileset dir="${resources.dir}">
+                <include name="**/*.properties"/>
+                <include name="**/*.xml"/>
+            </fileset>
+        </copy>
+
+        <echo message="Compiled Java sources"/>
+    </target>
+
+    <!-- WAR target: creates web application archive -->
+    <target name="war" depends="compile" description="Build WAR file">
+        <war destfile="${dist.dir}/${war.name}" webxml="${webapp.dir}/WEB-INF/web.xml">
+            <!-- Add compiled classes -->
+            <classes dir="${classes.dir}"/>
+
+            <!-- Add web content (JSP, HTML, CSS, JS) -->
+            <fileset dir="${webapp.dir}">
+                <exclude name="WEB-INF/web.xml"/>
+            </fileset>
+
+            <!-- Add library JARs -->
+            <lib dir="${lib.dir}">
+                <include name="**/*.jar"/>
+                <!-- Exclude APIs provided by container -->
+                <exclude name="servlet-api*.jar"/>
+                <exclude name="jsp-api*.jar"/>
+                <exclude name="jstl*.jar"/>
+                <exclude name="javax.servlet.jsp.jstl*.jar"/>
+            </lib>
+        </war>
+
+        <echo message="Created WAR file: ${dist.dir}/${war.name}"/>
+    </target>
+
+    <!-- Build all target -->
+    <target name="build" depends="clean,war" description="Clean and build WAR file">
+        <echo message="Build completed successfully"/>
+    </target>
+
+    <!-- Deploy target: copies WAR to Tomcat webapps directory -->
+    <target name="deploy" depends="war" description="Deploy WAR to Tomcat">
+        <property name="tomcat.home" value="${env.CATALINA_HOME}"/>
+        <fail message="CATALINA_HOME environment variable not set" unless="tomcat.home"/>
+
+        <copy file="${dist.dir}/${war.name}"
+              todir="${tomcat.home}/webapps"
+              overwrite="true"/>
+
+        <echo message="Deployed ${war.name} to ${tomcat.home}/webapps"/>
+    </target>
+
+    <!-- Run target: compiles and displays usage instructions -->
+    <target name="run" depends="war" description="Display run instructions">
+        <echo message="==================================="/>
+        <echo message="WAR file built: ${dist.dir}/${war.name}"/>
+        <echo message=""/>
+        <echo message="To deploy and run:"/>
+        <echo message="1. Copy ${dist.dir}/${war.name} to your Tomcat webapps/ directory"/>
+        <echo message="2. Start Tomcat: catalina.sh run (or startup.sh)"/>
+        <echo message="3. Access: http://localhost:8080/photo-album/"/>
+        <echo message=""/>
+        <echo message="Or run: ant deploy (if CATALINA_HOME is set)"/>
+        <echo message="==================================="/>
+    </target>
+
+    <!-- Help target -->
+    <target name="help" description="Display available targets">
+        <echo message="Available targets:"/>
+        <echo message="  clean   - Remove build and dist directories"/>
+        <echo message="  compile - Compile Java sources"/>
+        <echo message="  war     - Build WAR file (default)"/>
+        <echo message="  build   - Clean and build WAR file"/>
+        <echo message="  deploy  - Deploy WAR to Tomcat (requires CATALINA_HOME)"/>
+        <echo message="  run     - Display run instructions"/>
+        <echo message="  help    - Display this help message"/>
+    </target>
+</project>
