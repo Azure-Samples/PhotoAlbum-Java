@@ -4,8 +4,8 @@ A simple photo gallery web application built with pure Servlet/JSP and H2 in-mem
 
 ## Prerequisites
 
-- Java 8+
-- Apache Ant 1.9+
+- Java 11+
+- Apache Maven 3.6+
 - Application Server: Tomcat 8.5+ / GlassFish 7 / WebSphere Liberty 25.x
 
 ## Quick Start
@@ -13,28 +13,28 @@ A simple photo gallery web application built with pure Servlet/JSP and H2 in-mem
 ### 1. Build
 
 ```bash
-ant war
+mvn clean package
 ```
 
 ### 2. Deploy (choose one)
 
 **GlassFish:**
 ```bash
-cp dist/photo-album.war $GLASSFISH_HOME/glassfish/domains/domain1/autodeploy/
+cp target/photo-album.war $GLASSFISH_HOME/glassfish/domains/domain1/autodeploy/
 $GLASSFISH_HOME/bin/asadmin start-domain
 # Access: http://localhost:8080/photo-album/
 ```
 
 **WebSphere Liberty:**
 ```bash
-cp dist/photo-album.war $WLP_HOME/usr/servers/defaultServer/dropins/
+cp target/photo-album.war $WLP_HOME/usr/servers/defaultServer/dropins/
 $WLP_HOME/bin/server run defaultServer
 # Access: http://localhost:9080/photo-album/
 ```
 
 **Tomcat:**
 ```bash
-cp dist/photo-album.war $CATALINA_HOME/webapps/
+cp target/photo-album.war $CATALINA_HOME/webapps/
 $CATALINA_HOME/bin/catalina.sh run
 # Access: http://localhost:8080/photo-album/
 ```
@@ -61,4 +61,4 @@ $CATALINA_HOME/bin/catalina.sh stop
 - Jakarta Servlet 6.0 / JSP 3.1 / JSTL 3.0
 - Pure JDBC (no ORM)
 - H2 2.2.224 in-memory database (auto-initialized)
-- Apache Ant 1.9+ build
+- Apache Maven 3.6+ build
