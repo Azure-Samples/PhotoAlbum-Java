@@ -67,9 +67,9 @@ public interface PhotoRepository extends JpaRepository<Photo, String> {
     @Query(value = "SELECT id, original_file_name, photo_data, stored_file_name, file_path, file_size, " +
                    "mime_type, uploaded_at, width, height " +
                    "FROM photos " +
-                   "WHERE EXTRACT(YEAR FROM uploaded_at)::text = :year " +
-                   "AND LPAD(EXTRACT(MONTH FROM uploaded_at)::text, 2, '0') = :month " +
-                   "ORDER BY uploaded_at DESC", 
+                   "WHERE CAST(EXTRACT(YEAR FROM uploaded_at) AS text) = :year " +
+                   "AND LPAD(CAST(EXTRACT(MONTH FROM uploaded_at) AS text), 2, '0') = :month " +
+                   "ORDER BY uploaded_at DESC",
            nativeQuery = true)
     List<Photo> findPhotosByUploadMonth(@Param("year") String year, @Param("month") String month);
 
