@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  * Service implementation for photo operations including upload, retrieval, and deletion
@@ -104,11 +103,6 @@ public class PhotoServiceImpl implements PhotoService {
                 return result;
             }
 
-            // Generate unique filename for compatibility (stored in database, not on disk)
-            String extension = getFileExtension(file.getOriginalFilename());
-            String storedFileName = UUID.randomUUID().toString() + extension;
-            String relativePath = "/uploads/" + storedFileName; // For compatibility only
-
             // Extract image dimensions and read file data
             Integer width = null;
             Integer height = null;
@@ -139,9 +133,7 @@ public class PhotoServiceImpl implements PhotoService {
             // Create photo entity with database BLOB storage
             Photo photo = new Photo(
                 file.getOriginalFilename(),
-                photoData,  // Store actual photo data in Oracle database
-                storedFileName,
-                relativePath, // Keep for compatibility, not used for serving
+                photoData,
                 file.getSize(),
                 file.getContentType()
             );
@@ -214,16 +206,5 @@ public class PhotoServiceImpl implements PhotoService {
     public Optional<Photo> getNextPhoto(Photo currentPhoto) {
         List<Photo> newerPhotos = photoRepository.findPhotosUploadedAfter(currentPhoto.getUploadedAt());
         return newerPhotos.isEmpty() ? Optional.<Photo>empty() : Optional.of(newerPhotos.get(0));
-    }
-
-    /**
-     * Extract file extension from filename
-     */
-    private String getFileExtension(String filename) {
-        if (filename == null || filename.isEmpty()) {
-            return "";
-        }
-        int lastDotIndex = filename.lastIndexOf('.');
-        return lastDotIndex > 0 ? filename.substring(lastDotIndex) : "";
     }
 }

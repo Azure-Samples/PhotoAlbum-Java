@@ -91,8 +91,6 @@ The application creates the following table structure in Oracle:
 #### PHOTOS Table
 - `ID` (VARCHAR2(36), Primary Key, UUID Generated)
 - `ORIGINAL_FILE_NAME` (VARCHAR2(255), Not Null)
-- `STORED_FILE_NAME` (VARCHAR2(255), Not Null)
-- `FILE_PATH` (VARCHAR2(500), Nullable)
 - `FILE_SIZE` (NUMBER, Not Null)
 - `MIME_TYPE` (VARCHAR2(50), Not Null)
 - `UPLOADED_AT` (TIMESTAMP, Not Null, Default SYSTIMESTAMP)

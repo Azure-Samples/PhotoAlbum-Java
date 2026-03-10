@@ -13,21 +13,6 @@ public class UploadResult {
     public UploadResult() {
     }
 
-    // Constructor for successful upload with photo ID
-    public UploadResult(boolean success, String fileName, String photoId) {
-        this.success = success;
-        this.fileName = fileName;
-        this.photoId = photoId;
-    }
-
-    // Static factory method for failed upload
-    public static UploadResult failure(String fileName, String errorMessage) {
-        UploadResult result = new UploadResult();
-        result.success = false;
-        result.fileName = fileName;
-        result.errorMessage = errorMessage;
-        return result;
-    }
 
     // Getters and Setters
     public boolean isSuccess() {

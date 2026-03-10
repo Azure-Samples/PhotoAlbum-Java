@@ -41,21 +41,6 @@ public class Photo {
     private byte[] photoData;
 
     /**
-     * GUID-based filename with extension (for compatibility)
-     */
-    @NotBlank
-    @Size(max = 255)
-    @Column(name = "stored_file_name", nullable = false, length = 255)
-    private String storedFileName;
-
-    /**
-     * Relative path from static resources (for compatibility - not used for DB storage)
-     */
-    @Size(max = 500)
-    @Column(name = "file_path", length = 500)
-    private String filePath;
-
-    /**
      * File size in bytes
      */
     @NotNull
@@ -97,25 +82,14 @@ public class Photo {
     }
 
     // Constructor with required fields
-    public Photo(String originalFileName, byte[] photoData, String storedFileName, String filePath, Long fileSize, String mimeType) {
+    public Photo(String originalFileName, byte[] photoData, Long fileSize, String mimeType) {
         this();
         this.originalFileName = originalFileName;
         this.photoData = photoData;
-        this.storedFileName = storedFileName;
-        this.filePath = filePath;
         this.fileSize = fileSize;
         this.mimeType = mimeType;
     }
 
-    // Constructor with required fields (file system compatibility)
-    public Photo(String originalFileName, String storedFileName, String filePath, Long fileSize, String mimeType) {
-        this();
-        this.originalFileName = originalFileName;
-        this.storedFileName = storedFileName;
-        this.filePath = filePath;
-        this.fileSize = fileSize;
-        this.mimeType = mimeType;
-    }
 
     // Getters and Setters
     public String getId() {
@@ -140,22 +114,6 @@ public class Photo {
 
     public void setPhotoData(byte[] photoData) {
         this.photoData = photoData;
-    }
-
-    public String getStoredFileName() {
-        return storedFileName;
-    }
-
-    public void setStoredFileName(String storedFileName) {
-        this.storedFileName = storedFileName;
-    }
-
-    public String getFilePath() {
-        return filePath;
-    }
-
-    public void setFilePath(String filePath) {
-        this.filePath = filePath;
     }
 
     public Long getFileSize() {
@@ -203,8 +161,6 @@ public class Photo {
         return "Photo{" +
                 "id=" + id +
                 ", originalFileName='" + originalFileName + '\'' +
-                ", storedFileName='" + storedFileName + '\'' +
-                ", filePath='" + filePath + '\'' +
                 ", fileSize=" + fileSize +
                 ", mimeType='" + mimeType + '\'' +
                 ", uploadedAt=" + uploadedAt +
