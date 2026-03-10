@@ -1,36 +1,29 @@
--- This script runs automatically when Oracle XE container starts
+-- This script runs automatically when PostgreSQL container starts
 -- It creates the photoalbum user and grants necessary privileges
+-- Migrated from Oracle to PostgreSQL according to completeness validation
 
-ALTER SESSION SET "_ORACLE_SCRIPT"=true;
+-- Create photoalbum user with password
+-- In PostgreSQL, users are created with CREATE ROLE or CREATE USER
+CREATE USER photoalbum WITH PASSWORD 'photoalbum';
 
--- Create photoalbum user
-CREATE USER photoalbum IDENTIFIED BY photoalbum;
+-- Grant database privileges
+-- PostgreSQL uses different privilege model than Oracle
+GRANT ALL PRIVILEGES ON DATABASE photoalbum TO photoalbum;
 
--- Grant system privileges
-GRANT CONNECT TO photoalbum;
-GRANT RESOURCE TO photoalbum;
-GRANT DBA TO photoalbum;
-GRANT CREATE SESSION TO photoalbum;
-GRANT CREATE TABLE TO photoalbum;
-GRANT CREATE SEQUENCE TO photoalbum;
-GRANT CREATE VIEW TO photoalbum;
-GRANT CREATE PROCEDURE TO photoalbum;
-GRANT CREATE TRIGGER TO photoalbum;
-GRANT CREATE TYPE TO photoalbum;
-GRANT CREATE SYNONYM TO photoalbum;
-GRANT UNLIMITED TABLESPACE TO photoalbum;
+-- Grant schema privileges (public schema by default)
+GRANT ALL PRIVILEGES ON SCHEMA public TO photoalbum;
 
--- Grant object privileges needed by Hibernate
-GRANT SELECT ANY DICTIONARY TO photoalbum;
-GRANT CREATE ANY INDEX TO photoalbum;
-GRANT ALTER ANY INDEX TO photoalbum;
-GRANT DROP ANY INDEX TO photoalbum;
+-- Grant privileges on all tables in public schema
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO photoalbum;
 
--- Set default and temporary tablespace
-ALTER USER photoalbum DEFAULT TABLESPACE USERS;
-ALTER USER photoalbum TEMPORARY TABLESPACE TEMP;
+-- Grant privileges on all sequences in public schema
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO photoalbum;
 
--- Commit the changes
-COMMIT;
+-- Grant default privileges for future objects
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO photoalbum;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO photoalbum;
 
-EXIT;
+-- PostgreSQL doesn't have tablespaces in the same way Oracle does
+-- Tablespaces are optional in PostgreSQL and typically not needed for basic usage
+
+\q

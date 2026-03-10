@@ -1,14 +1,15 @@
 -- Verification script to check if photoalbum user exists
-ALTER SESSION SET "_ORACLE_SCRIPT"=true;
+-- Migrated from Oracle to PostgreSQL according to completeness validation
+-- PostgreSQL uses different system catalogs than Oracle
 
--- Check if user exists
-SELECT username, account_status, default_tablespace 
-FROM dba_users 
-WHERE username = 'PHOTOALBUM';
+-- Check if user/role exists in PostgreSQL
+SELECT rolname, rolsuper, rolcreaterole, rolcreatedb 
+FROM pg_roles 
+WHERE rolname = 'photoalbum';
 
--- Show granted privileges
-SELECT grantee, privilege 
-FROM dba_sys_privs 
-WHERE grantee = 'PHOTOALBUM';
+-- Show granted privileges for photoalbum user
+SELECT grantee, table_catalog, table_schema, privilege_type 
+FROM information_schema.table_privileges 
+WHERE grantee = 'photoalbum';
 
-EXIT;
+\q
