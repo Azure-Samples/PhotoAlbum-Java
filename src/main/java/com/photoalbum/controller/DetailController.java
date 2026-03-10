@@ -37,7 +37,7 @@ public class DetailController {
 
         try {
             Optional<Photo> photoOpt = photoService.getPhotoById(id);
-            if (!photoOpt.isPresent()) {
+            if (photoOpt.isEmpty()) {
                 return "redirect:/";
             }
 
