@@ -31,13 +31,12 @@ public interface PhotoRepository extends JpaRepository<Photo, String> {
      * @param uploadedAt The upload timestamp to compare against
      * @return List of photos uploaded before the given timestamp
      */
-    @Query(value = "SELECT * FROM (" +
-                   "SELECT ID, ORIGINAL_FILE_NAME, PHOTO_DATA, FILE_SIZE, " +
-                   "MIME_TYPE, UPLOADED_AT, WIDTH, HEIGHT, ROWNUM as RN " +
+    @Query(value = "SELECT ID, ORIGINAL_FILE_NAME, PHOTO_DATA, FILE_SIZE, " +
+                   "MIME_TYPE, UPLOADED_AT, WIDTH, HEIGHT " +
                    "FROM PHOTOS " +
                    "WHERE UPLOADED_AT < :uploadedAt " +
-                   "ORDER BY UPLOADED_AT DESC" +
-                   ") WHERE ROWNUM <= 10", 
+                   "ORDER BY UPLOADED_AT DESC " +
+                   "LIMIT 10", 
            nativeQuery = true)
     List<Photo> findPhotosUploadedBefore(@Param("uploadedAt") LocalDateTime uploadedAt);
 
