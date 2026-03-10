@@ -19,10 +19,10 @@ public interface PhotoRepository extends JpaRepository<Photo, String> {
      * Find all photos ordered by upload date (newest first)
      * @return List of photos ordered by upload date descending
      */
-    @Query(value = "SELECT ID, ORIGINAL_FILE_NAME, PHOTO_DATA, FILE_SIZE, " +
-                   "MIME_TYPE, UPLOADED_AT, WIDTH, HEIGHT " +
-                   "FROM PHOTOS " +
-                   "ORDER BY UPLOADED_AT DESC", 
+    @Query(value = "SELECT id, original_file_name, photo_data, file_size, " +
+                   "mime_type, uploaded_at, width, height " +
+                   "FROM photos " +
+                   "ORDER BY uploaded_at DESC", 
            nativeQuery = true)
     List<Photo> findAllOrderByUploadedAtDesc();
 
@@ -32,11 +32,11 @@ public interface PhotoRepository extends JpaRepository<Photo, String> {
      * @return List of photos uploaded before the given timestamp
      */
     @Query(value = "SELECT * FROM (" +
-                   "SELECT ID, ORIGINAL_FILE_NAME, PHOTO_DATA, FILE_SIZE, " +
-                   "MIME_TYPE, UPLOADED_AT, WIDTH, HEIGHT, ROWNUM as RN " +
-                   "FROM PHOTOS " +
-                   "WHERE UPLOADED_AT < :uploadedAt " +
-                   "ORDER BY UPLOADED_AT DESC" +
+                   "SELECT id, original_file_name, photo_data, file_size, " +
+                   "mime_type, uploaded_at, width, height, ROWNUM as rn " +
+                   "FROM photos " +
+                   "WHERE uploaded_at < :uploadedAt " +
+                   "ORDER BY uploaded_at DESC" +
                    ") WHERE ROWNUM <= 10", 
            nativeQuery = true)
     List<Photo> findPhotosUploadedBefore(@Param("uploadedAt") LocalDateTime uploadedAt);
@@ -46,11 +46,11 @@ public interface PhotoRepository extends JpaRepository<Photo, String> {
      * @param uploadedAt The upload timestamp to compare against
      * @return List of photos uploaded after the given timestamp
      */
-    @Query(value = "SELECT ID, ORIGINAL_FILE_NAME, PHOTO_DATA, FILE_SIZE, " +
-                   "MIME_TYPE, UPLOADED_AT, WIDTH, HEIGHT " +
-                   "FROM PHOTOS " +
-                   "WHERE UPLOADED_AT > :uploadedAt " +
-                   "ORDER BY UPLOADED_AT ASC", 
+    @Query(value = "SELECT id, original_file_name, photo_data, file_size, " +
+                   "mime_type, uploaded_at, width, height " +
+                   "FROM photos " +
+                   "WHERE uploaded_at > :uploadedAt " +
+                   "ORDER BY uploaded_at ASC", 
            nativeQuery = true)
     List<Photo> findPhotosUploadedAfter(@Param("uploadedAt") LocalDateTime uploadedAt);
 }
