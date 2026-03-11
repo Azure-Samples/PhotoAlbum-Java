@@ -174,6 +174,14 @@ Look for the following in your report:
 
 ### Step 2: Migrate from Oracle to PostgreSQL
 
+Before running the migration task in Copilot Chat, make sure the chat is configured to use your preferred LLM model, to choose the model:
+
+1. Open Copilot Chat in **Agent** mode.
+1. Select the custom agent **modernize-azure-java** from the agent picker.
+1. Select the a model from the model picker, e.g., **GPT-5.4**.
+
+    ![Custom Agent](doc-media/custom-agent.png)
+
 Now that you've assessed the application, let's begin the database migration from Oracle to Azure Database for PostgreSQL.
 
 1. In the **Assessment Report**, locate the **Database Migration (Oracle)** issue
