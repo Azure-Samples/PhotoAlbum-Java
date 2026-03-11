@@ -1,9 +1,9 @@
 # Photo Album Application - Migration Workshop
 
-This document serves as a comprehensive workshop guide that will walk you through the process of migrating a Java application to Azure using GitHub Copilot app modernization. The workshop covers assessment, database migration from Oracle to PostgreSQL, containerization, and deployment to Azure.
+This document serves as a comprehensive workshop guide that will walk you through the process of migrating a Java application to Azure using GitHub Copilot app modernization. The workshop covers assessment, database migration from Oracle to PostgreSQL, and deployment to Azure.
 
 **What the Migration Process Will Do:**
-The migration will transform your application from using Oracle Database to a modern Azure-native solution. This includes migrating from Oracle Database to Azure Database for PostgreSQL Flexible Server with managed identity authentication, containerizing the application, and deploying it to Azure with proper monitoring and health checks.
+The migration will transform your application from using Oracle Database to a modern Azure-native solution. This includes migrating from Oracle Database to Azure Database for PostgreSQL Flexible Server with managed identity authentication, and deploying it to Azure with proper monitoring and health checks.
 
 ## Table of Contents
 
@@ -13,10 +13,7 @@ The migration will transform your application from using Oracle Database to a mo
 - [Workshop Steps](#workshop-steps)
   - [Step 1: Assess Your Java Application](#step-1-assess-your-java-application)
   - [Step 2: Migrate from Oracle to PostgreSQL](#step-2-migrate-from-oracle-to-postgresql)
-  - [Step 3: Containerize the Application](#step-3-containerize-the-application)
-  - [Step 4: Deploy to Azure](#step-4-deploy-to-azure)
-- [Clean Up](#clean-up)
-- [Troubleshooting](#troubleshooting)
+  - [Step 3: Deploy to Azure](#step-3-deploy-to-azure)
 
 ## Overview
 
@@ -36,14 +33,12 @@ The Photo Album application is a Spring Boot web application that allows users t
 **After Migration:**
 * Azure Database for PostgreSQL Flexible Server
 * Managed Identity passwordless authentication
-* Containerized application
 * Deployed to Azure Container Apps
 
 **Time Estimates:**
 The complete workshop takes approximately **1 hours** to complete. Here's the breakdown for each major step:
 - **Assess Your Java Application**: ~5 minutes
 - **Migrate from Oracle to PostgreSQL**: ~20 minutes
-- **Containerize the Application**: ~5 minutes
 - **Deploy to Azure**: ~25 minutes
 
 ## Running Locally (Pre-Migration)
