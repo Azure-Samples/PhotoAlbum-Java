@@ -36,10 +36,10 @@ The Photo Album application is a Spring Boot web application that allows users t
 * Deployed to Azure Container Apps
 
 **Time Estimates:**
-The complete workshop takes approximately **1 hours** to complete. Here's the breakdown for each major step:
+The complete workshop takes approximately **40 minutes** to complete. Here's the breakdown for each major step:
 - **Assess Your Java Application**: ~5 minutes
-- **Migrate from Oracle to PostgreSQL**: ~20 minutes
-- **Deploy to Azure**: ~25 minutes
+- **Migrate from Oracle to PostgreSQL**: ~15 minutes
+- **Deploy to Azure**: ~20 minutes
 
 ## Running Locally (Pre-Migration)
 
