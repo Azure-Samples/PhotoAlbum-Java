@@ -1,10 +1,10 @@
 package com.photoalbum.model;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.Size;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -34,33 +34,18 @@ public class Photo {
     private String originalFileName;
 
     /**
-     * Binary photo data stored directly in Oracle database
+     * Binary photo data stored directly in database
      */
     @Lob
     @Column(name = "photo_data", nullable = true)
     private byte[] photoData;
 
     /**
-     * GUID-based filename with extension (for compatibility)
-     */
-    @NotBlank
-    @Size(max = 255)
-    @Column(name = "stored_file_name", nullable = false, length = 255)
-    private String storedFileName;
-
-    /**
-     * Relative path from static resources (for compatibility - not used for DB storage)
-     */
-    @Size(max = 500)
-    @Column(name = "file_path", length = 500)
-    private String filePath;
-
-    /**
      * File size in bytes
      */
     @NotNull
     @Positive
-    @Column(name = "file_size", nullable = false, columnDefinition = "NUMBER(19,0)")
+    @Column(name = "file_size", nullable = false)
     private Long fileSize;
 
     /**
@@ -75,7 +60,7 @@ public class Photo {
      * Timestamp of upload
      */
     @NotNull
-    @Column(name = "uploaded_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT SYSTIMESTAMP")
+    @Column(name = "uploaded_at", nullable = false)
     private LocalDateTime uploadedAt;
 
     /**
@@ -97,25 +82,14 @@ public class Photo {
     }
 
     // Constructor with required fields
-    public Photo(String originalFileName, byte[] photoData, String storedFileName, String filePath, Long fileSize, String mimeType) {
+    public Photo(String originalFileName, byte[] photoData, Long fileSize, String mimeType) {
         this();
         this.originalFileName = originalFileName;
         this.photoData = photoData;
-        this.storedFileName = storedFileName;
-        this.filePath = filePath;
         this.fileSize = fileSize;
         this.mimeType = mimeType;
     }
 
-    // Constructor with required fields (file system compatibility)
-    public Photo(String originalFileName, String storedFileName, String filePath, Long fileSize, String mimeType) {
-        this();
-        this.originalFileName = originalFileName;
-        this.storedFileName = storedFileName;
-        this.filePath = filePath;
-        this.fileSize = fileSize;
-        this.mimeType = mimeType;
-    }
 
     // Getters and Setters
     public String getId() {
@@ -140,22 +114,6 @@ public class Photo {
 
     public void setPhotoData(byte[] photoData) {
         this.photoData = photoData;
-    }
-
-    public String getStoredFileName() {
-        return storedFileName;
-    }
-
-    public void setStoredFileName(String storedFileName) {
-        this.storedFileName = storedFileName;
-    }
-
-    public String getFilePath() {
-        return filePath;
-    }
-
-    public void setFilePath(String filePath) {
-        this.filePath = filePath;
     }
 
     public Long getFileSize() {
@@ -203,8 +161,6 @@ public class Photo {
         return "Photo{" +
                 "id=" + id +
                 ", originalFileName='" + originalFileName + '\'' +
-                ", storedFileName='" + storedFileName + '\'' +
-                ", filePath='" + filePath + '\'' +
                 ", fileSize=" + fileSize +
                 ", mimeType='" + mimeType + '\'' +
                 ", uploadedAt=" + uploadedAt +

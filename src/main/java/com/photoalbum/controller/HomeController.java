@@ -54,7 +54,7 @@ public class HomeController {
      */
     @PostMapping("/upload")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> uploadPhotos(@RequestParam("files") List<MultipartFile> files) {
+    public ResponseEntity<Map<String, Object>> uploadPhotos(@RequestParam List<MultipartFile> files) {
         Map<String, Object> response = new HashMap<String, Object>();
         List<Map<String, Object>> uploadedPhotos = new ArrayList<Map<String, Object>>();
         List<Map<String, Object>> failedUploads = new ArrayList<Map<String, Object>>();
@@ -75,7 +75,6 @@ public class HomeController {
                     Map<String, Object> uploadedPhoto = new HashMap<String, Object>();
                     uploadedPhoto.put("id", photo.getId());
                     uploadedPhoto.put("originalFileName", photo.getOriginalFileName());
-                    uploadedPhoto.put("filePath", photo.getFilePath());
                     uploadedPhoto.put("uploadedAt", photo.getUploadedAt());
                     uploadedPhoto.put("fileSize", photo.getFileSize());
                     uploadedPhoto.put("width", photo.getWidth());
