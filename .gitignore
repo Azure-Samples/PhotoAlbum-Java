@@ -254,12 +254,17 @@ PhotoAlbum/wwwroot/uploads/*
 
 # Maven
 target/
-*.jar
+
+# Package files (except lib directory dependencies)
 *.war
 *.ear
 *.zip
 *.tar.gz
 *.rar
+
+# JAR files (but keep lib/ directory JARs for Ant project)
+*.jar
+!lib/*.jar
 
 # IDE
 .idea/
