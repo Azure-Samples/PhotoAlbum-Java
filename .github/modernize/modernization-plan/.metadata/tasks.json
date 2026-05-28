@@ -115,7 +115,8 @@
     {
       "type": "deployment",
       "id": "005-deployment-azure-container-apps",
-      "status": "started",
+      "status": "success",
+      "summary": "Containerized application and deployed to Azure Container Apps in centralus. Provisioned: Resource Group (photoalbum-rg), User-Assigned Managed Identity, Log Analytics Workspace, Azure Container Registry, Container Apps Environment, PostgreSQL Flexible Server v17, and Container App. Application live at https://azcaa7gtzdzjcrgy2.agreeablecoast-b37cabbd.centralus.azurecontainerapps.io with passwordless Managed Identity auth to PostgreSQL.",
       "description": "Containerize the application and deploy it to Azure Container Apps.",
       "reason": "The user requested migration to Azure. Azure Container Apps provides a fully managed serverless container hosting platform suitable for Spring Boot applications.",
       "requirements": "Update the existing Dockerfile to use Java 21 base images (eclipse-temurin:21). Configure the application for cloud-native operation: use environment-variable-driven port configuration to address \u0027Server port configuration found\u0027 and \u0027Restricted configurations found\u0027 issues. Ensure all logging goes to console. Build and push the container image to Azure Container Registry. Deploy to Azure Container Apps with the appropriate environment configuration and managed identity bindings for Azure Database for PostgreSQL. Addresses assessment issues: \u0027Server port configuration found\u0027, \u0027Restricted configurations found\u0027.",
