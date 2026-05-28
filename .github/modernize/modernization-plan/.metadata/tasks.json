@@ -59,7 +59,13 @@
     {
       "type": "transform",
       "id": "003-transform-mi-postgresql",
-      "status": "started",
+      "status": "success",
+      "summary": "Removed hardcoded plaintext password from application-docker.properties. Configured passwordless authentication via Azure Managed Identity (spring.datasource.azure.passwordless-enabled=true). Spring Cloud Azure BOM and starter were already present from Task 002. Build and tests pass.",
+      "successCriteriaStatus": {
+        "passBuild": "true",
+        "generateNewUnitTests": "false",
+        "passUnitTests": "true"
+      },
       "description": "Enable passwordless authentication to Azure Database for PostgreSQL using Azure Managed Identity, removing hardcoded database credentials from configuration files.",
       "reason": "Database passwords are stored in plaintext in application properties files, which is a security risk. Managed Identity provides credential-free authentication using Azure identity.",
       "requirements": "Add Spring Cloud Azure dependencies for managed identity support. Update datasource configuration to use passwordless authentication via Azure Managed Identity for Azure Database for PostgreSQL. Remove the plaintext spring.datasource.password property from all configuration files (application.properties, application-docker.properties). Ensure the application connects successfully to Azure Database for PostgreSQL using managed identity. Addresses assessment issues: \u0027Password found in configuration file\u0027.",
@@ -81,6 +87,13 @@
     {
       "type": "security",
       "id": "004-security-cve-remediation",
+      "status": "success",
+      "summary": "Fixed 58 CVEs across 153 dependencies. Upgraded Spring Boot parent to 3.5.14, added Tomcat 10.1.55, Netty 4.1.134.Final, postgresql 42.7.11, nimbus-jose-jwt 10.0.2, commons-io 2.14.0 overrides. Build and tests pass with 0 remaining vulnerabilities.",
+      "successCriteriaStatus": {
+        "passBuild": "true",
+        "generateNewUnitTests": "false",
+        "passUnitTests": "true"
+      },
       "description": "Scan all project dependencies for known CVEs and remediate identified vulnerabilities.",
       "reason": "Known vulnerabilities in dependencies pose security risks to the application. Remediating CVEs before deployment ensures the modernized application meets security baselines.",
       "requirements": "Scan all Maven dependencies for known CVEs. Upgrade vulnerable dependencies to the minimum patched version. If a CVE fix requires a major version upgrade, document the affected dependency, the current version, the upgraded major version, and the breaking change risk. Verify that the project builds and all tests pass after remediation.",
@@ -102,6 +115,7 @@
     {
       "type": "deployment",
       "id": "005-deployment-azure-container-apps",
+      "status": "started",
       "description": "Containerize the application and deploy it to Azure Container Apps.",
       "reason": "The user requested migration to Azure. Azure Container Apps provides a fully managed serverless container hosting platform suitable for Spring Boot applications.",
       "requirements": "Update the existing Dockerfile to use Java 21 base images (eclipse-temurin:21). Configure the application for cloud-native operation: use environment-variable-driven port configuration to address \u0027Server port configuration found\u0027 and \u0027Restricted configurations found\u0027 issues. Ensure all logging goes to console. Build and push the container image to Azure Container Registry. Deploy to Azure Container Apps with the appropriate environment configuration and managed identity bindings for Azure Database for PostgreSQL. Addresses assessment issues: \u0027Server port configuration found\u0027, \u0027Restricted configurations found\u0027.",
