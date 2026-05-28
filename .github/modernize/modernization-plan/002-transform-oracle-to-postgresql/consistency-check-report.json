@@ -1,0 +1,32 @@
+[
+  {
+    "file": "docker-compose.yml",
+    "description": "Docker Compose configuration updated to replace Oracle Database service with PostgreSQL. Service name, image, port, environment variables, volume mount, and application datasource connection string have been correctly converted from Oracle (oracle-db, port 1521, Oracle-specific healthcheck) to PostgreSQL (postgres-db, port 5432, PostgreSQL-specific healthcheck using pg_isready). All references to the database service have been updated consistently.",
+    "issues": []
+  },
+  {
+    "file": "pom.xml",
+    "description": "Maven dependencies updated for Oracle to PostgreSQL migration. Added spring-cloud-azure-dependencies (version 5.22.0) for Spring Boot 3.5.3 compatibility. Replaced Oracle JDBC driver (ojdbc8) with PostgreSQL driver. Added spring-cloud-azure-starter-jdbc-postgresql for managed identity support. Project description updated to reflect PostgreSQL usage. All changes follow the required dependency management pattern for passwordless authentication to Azure Database for PostgreSQL.",
+    "issues": []
+  },
+  {
+    "file": "src/main/java/com/photoalbum/model/Photo.java",
+    "description": "Entity model updated to remove Oracle-specific column definitions. Javadoc comment updated from Oracle-specific reference to generic database reference. Oracle-specific columnDefinition attributes (NUMBER(19,0) for numeric type, TIMESTAMP DEFAULT SYSTIMESTAMP for timestamp default) removed, allowing Hibernate to use PostgreSQL-appropriate defaults. Changes maintain functional equivalence with proper JPA mapping for PostgreSQL.",
+    "issues": []
+  },
+  {
+    "file": "src/main/java/com/photoalbum/repository/PhotoRepository.java",
+    "description": "SQL queries comprehensively converted from Oracle-specific syntax to PostgreSQL equivalents. Key conversions include: (1) Table and column names converted from uppercase to lowercase per PostgreSQL convention; (2) Oracle ROWNUM-based pagination replaced with PostgreSQL LIMIT clause (findPhotosUploadedBefore); (3) Oracle ROWNUM pagination with nested SELECT replaced with PostgreSQL ROW_NUMBER() OVER window function (findPhotosWithPagination); (4) Oracle NVL() function replaced with PostgreSQL COALESCE(); (5) TO_CHAR() function usage corrected for PostgreSQL syntax in findPhotosByUploadMonth; (6) Window functions (RANK(), SUM() OVER) properly converted for PostgreSQL in findPhotosWithStatistics. All SQL syntax conversions maintain functional equivalence with original Oracle implementation.",
+    "issues": []
+  },
+  {
+    "file": "src/main/resources/application-docker.properties",
+    "description": "Docker environment-specific datasource configuration updated for PostgreSQL with local container database. JDBC URL changed from Oracle thin protocol to PostgreSQL protocol format. Driver class updated from Oracle to PostgreSQL driver. JPA dialect updated from OracleDialect to PostgreSQLDialect. Configuration maintains consistency with docker-compose.yml service naming and port configuration. Comments clarified for PostgreSQL usage.",
+    "issues": []
+  },
+  {
+    "file": "src/main/resources/application.properties",
+    "description": "Main application properties updated for Azure Database for PostgreSQL with managed identity authentication. Configuration includes: (1) Comprehensive comments explaining managed identity setup (system-assigned by default); (2) Alternative comments for service principal authentication; (3) Azure sovereign cloud deployment guidance with specific URLs for Azure China, Germany, and US Government clouds; (4) JDBC URL templated with environment variables for Azure PostgreSQL hostname pattern and required database parameters; (5) Username configured for managed identity name via environment variable; (6) Password removed (passwordless authentication enabled); (7) Azure Spring Cloud properties configured for managed identity: spring.datasource.azure.passwordless-enabled=true, spring.cloud.azure.credential.managed-identity-enabled=true, spring.cloud.azure.credential.client-id placeholder; (8) JPA dialect updated to PostgreSQLDialect. All changes align with knowledge base guidance for Spring Boot 3.x passwordless PostgreSQL authentication on Azure. Placeholder values (e.g., <your_managed_identity_client_id>) are appropriate for template configuration and must be replaced during actual Azure deployment.",
+    "issues": []
+  }
+]

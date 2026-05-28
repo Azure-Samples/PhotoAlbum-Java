@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Tasks template for modernization plan. Generate this file alongside plan.md to track individual migration tasks.",
+  "metadata": {
+    "planName": "modernization-plan",
+    "projectName": "Photo Album",
+    "language": "java",
+    "createdAt": "2026-05-28T10:40:32.470\u002B08:00",
+    "version": "1.0"
+  },
+  "tasks": [
+    {
+      "type": "upgrade",
+      "id": "001-upgrade-spring-boot-3",
+      "status": "success",
+      "summary": "Upgraded Spring Boot from 2.7.18 to 3.5.3, Java from 8 to 21, migrated javax.* to jakarta.* namespaces, updated Dockerfile to eclipse-temurin:21. Build and tests pass.",
+      "successCriteriaStatus": {
+        "passBuild": "true",
+        "generateNewUnitTests": "false",
+        "passUnitTests": "true"
+      },
+      "description": "Upgrade the application from Spring Boot 2.7.18 / Java 8 to Spring Boot 3.x / Java 21, including Spring Framework 6.x and Jakarta EE namespace migration.",
+      "reason": "Spring Boot 2.7.18 and Java 8 have both reached end-of-OSS-support, posing security and maintenance risks. Spring Boot 3.x with Java 21 is the current LTS target.",
+      "requirements": "Upgrade Spring Boot parent from 2.7.18 to the latest 3.x release. Upgrade Java source/target from 8 to 21. Upgrade Spring Framework to 6.x. Migrate all javax.* imports to jakarta.* equivalents as required by Jakarta EE. Update the Dockerfile base image from eclipse-temurin:8 to eclipse-temurin:21. Ensure the project builds successfully and all existing tests pass after the upgrade. Addresses assessment issues: \u0027Spring Boot Version Has Reached the End of OSS Support\u0027, \u0027Spring Framework Version Has Reached the End of OSS Support\u0027, \u0027Java Version Has Reached the End of Support\u0027, \u0027Java Version is not the latest LTS\u0027, \u0027Detects usage of Jakarta Persistence (JPA) APIs\u0027.",
+      "successCriteria": {
+        "passBuild": "true",
+        "generateNewUnitTests": "false",
+        "passUnitTests": "true"
+      }
+    },
+    {
+      "type": "transform",
+      "id": "002-transform-oracle-to-postgresql",
+      "status": "success",
+      "summary": "Replaced Oracle JDBC driver with PostgreSQL driver. Updated datasource config, JPA dialect, docker-compose.yml to use PostgreSQL. Converted Oracle-specific SQL (ROWNUM, NVL) to PostgreSQL equivalents. Build and tests pass.",
+      "successCriteriaStatus": {
+        "passBuild": "true",
+        "generateNewUnitTests": "false",
+        "passUnitTests": "true"
+      },
+      "description": "Migrate the application database layer from Oracle Database to Azure Database for PostgreSQL.",
+      "reason": "The application uses Oracle Database, which is not a native Azure managed service. Azure Database for PostgreSQL provides a fully managed, cost-effective alternative with native Azure integration.",
+      "requirements": "Replace the Oracle JDBC driver (ojdbc8) with the PostgreSQL JDBC driver. Update datasource configuration in application.properties and application-docker.properties to use PostgreSQL connection strings. Replace Oracle-specific JPA dialect (OracleDialect) with the PostgreSQL dialect. Convert any Oracle-specific SQL syntax (sequences, dual table, ROWNUM, etc.) to PostgreSQL equivalents. Update docker-compose.yml to use a PostgreSQL container instead of Oracle. Ensure the schema is created correctly under PostgreSQL. Addresses assessment issues: \u0027Oracle database found\u0027.",
+      "dependencies": [
+        "001-upgrade-spring-boot-3"
+      ],
+      "skills": [
+        {
+          "name": "migration-oracle-to-postgresql",
+          "location": "builtin"
+        }
+      ],
+      "successCriteria": {
+        "passBuild": "true",
+        "generateNewUnitTests": "false",
+        "passUnitTests": "true"
+      }
+    },
+    {
+      "type": "transform",
+      "id": "003-transform-mi-postgresql",
+      "status": "success",
+      "summary": "Removed hardcoded plaintext password from application-docker.properties. Configured passwordless authentication via Azure Managed Identity (spring.datasource.azure.passwordless-enabled=true). Spring Cloud Azure BOM and starter were already present from Task 002. Build and tests pass.",
+      "successCriteriaStatus": {
+        "passBuild": "true",
+        "generateNewUnitTests": "false",
+        "passUnitTests": "true"
+      },
+      "description": "Enable passwordless authentication to Azure Database for PostgreSQL using Azure Managed Identity, removing hardcoded database credentials from configuration files.",
+      "reason": "Database passwords are stored in plaintext in application properties files, which is a security risk. Managed Identity provides credential-free authentication using Azure identity.",
+      "requirements": "Add Spring Cloud Azure dependencies for managed identity support. Update datasource configuration to use passwordless authentication via Azure Managed Identity for Azure Database for PostgreSQL. Remove the plaintext spring.datasource.password property from all configuration files (application.properties, application-docker.properties). Ensure the application connects successfully to Azure Database for PostgreSQL using managed identity. Addresses assessment issues: \u0027Password found in configuration file\u0027.",
+      "dependencies": [
+        "002-transform-oracle-to-postgresql"
+      ],
+      "skills": [
+        {
+          "name": "migration-mi-postgresql",
+          "location": "builtin"
+        }
+      ],
+      "successCriteria": {
+        "passBuild": "true",
+        "generateNewUnitTests": "false",
+        "passUnitTests": "true"
+      }
+    },
+    {
+      "type": "security",
+      "id": "004-security-cve-remediation",
+      "status": "success",
+      "summary": "Fixed 58 CVEs across 153 dependencies. Upgraded Spring Boot parent to 3.5.14, added Tomcat 10.1.55, Netty 4.1.134.Final, postgresql 42.7.11, nimbus-jose-jwt 10.0.2, commons-io 2.14.0 overrides. Build and tests pass with 0 remaining vulnerabilities.",
+      "successCriteriaStatus": {
+        "passBuild": "true",
+        "generateNewUnitTests": "false",
+        "passUnitTests": "true"
+      },
+      "description": "Scan all project dependencies for known CVEs and remediate identified vulnerabilities.",
+      "reason": "Known vulnerabilities in dependencies pose security risks to the application. Remediating CVEs before deployment ensures the modernized application meets security baselines.",
+      "requirements": "Scan all Maven dependencies for known CVEs. Upgrade vulnerable dependencies to the minimum patched version. If a CVE fix requires a major version upgrade, document the affected dependency, the current version, the upgraded major version, and the breaking change risk. Verify that the project builds and all tests pass after remediation.",
+      "dependencies": [
+        "001-upgrade-spring-boot-3"
+      ],
+      "skills": [
+        {
+          "name": "validate-cves-and-fix",
+          "location": "builtin"
+        }
+      ],
+      "successCriteria": {
+        "passBuild": "true",
+        "generateNewUnitTests": "false",
+        "passUnitTests": "true"
+      }
+    },
+    {
+      "type": "deployment",
+      "id": "005-deployment-azure-container-apps",
+      "status": "success",
+      "summary": "Containerized application and deployed to Azure Container Apps in centralus. Provisioned: Resource Group (photoalbum-rg), User-Assigned Managed Identity, Log Analytics Workspace, Azure Container Registry, Container Apps Environment, PostgreSQL Flexible Server v17, and Container App. Application live at https://azcaa7gtzdzjcrgy2.agreeablecoast-b37cabbd.centralus.azurecontainerapps.io with passwordless Managed Identity auth to PostgreSQL.",
+      "description": "Containerize the application and deploy it to Azure Container Apps.",
+      "reason": "The user requested migration to Azure. Azure Container Apps provides a fully managed serverless container hosting platform suitable for Spring Boot applications.",
+      "requirements": "Update the existing Dockerfile to use Java 21 base images (eclipse-temurin:21). Configure the application for cloud-native operation: use environment-variable-driven port configuration to address \u0027Server port configuration found\u0027 and \u0027Restricted configurations found\u0027 issues. Ensure all logging goes to console. Build and push the container image to Azure Container Registry. Deploy to Azure Container Apps with the appropriate environment configuration and managed identity bindings for Azure Database for PostgreSQL. Addresses assessment issues: \u0027Server port configuration found\u0027, \u0027Restricted configurations found\u0027.",
+      "dependencies": [
+        "003-transform-mi-postgresql",
+        "004-security-cve-remediation"
+      ],
+      "targetAzureService": "Azure Container Apps",
+      "resourceStatus": "Create new service",
+      "deploymentTool": "bicep",
+      "skills": [
+        {
+          "name": "azcli-containerapp-deploy",
+          "location": "builtin"
+        }
+      ]
+    }
+  ]
+}

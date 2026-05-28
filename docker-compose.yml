@@ -1,25 +1,24 @@
 services:
-  # Oracle Database service (Oracle Database Free 23ai - supports ARM64 and x86_64)
-  oracle-db:
-    image: gvenzl/oracle-free:latest
-    container_name: photoalbum-oracle
+  # PostgreSQL Database service
+  postgres-db:
+    image: postgres:16
+    container_name: photoalbum-postgres
     environment:
-      - ORACLE_PASSWORD=photoalbum
-      - APP_USER=photoalbum
-      - APP_USER_PASSWORD=photoalbum
+      - POSTGRES_DB=photoalbum
+      - POSTGRES_USER=photoalbum
+      - POSTGRES_PASSWORD=photoalbum
     ports:
-      - "1521:1521"
+      - "5432:5432"
     volumes:
-      - oracle_data:/opt/oracle/oradata
-      - ./oracle-init:/container-entrypoint-initdb.d
+      - postgres_data:/var/lib/postgresql/data
     networks:
       - photoalbum-network
     healthcheck:
-      test: ["CMD-SHELL", "healthcheck.sh"]
-      interval: 30s
-      timeout: 10s
-      retries: 15
-      start_period: 180s
+      test: ["CMD-SHELL", "pg_isready -U photoalbum -d photoalbum"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   # Photo Album Java Application  
   photoalbum-java-app:
@@ -29,20 +28,20 @@ services:
     container_name: photoalbum-java-app
     environment:
       - SPRING_PROFILES_ACTIVE=docker
-      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@oracle-db:1521/FREEPDB1
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/photoalbum
       - SPRING_DATASOURCE_USERNAME=photoalbum
       - SPRING_DATASOURCE_PASSWORD=photoalbum
     ports:
       - "8080:8080"
     depends_on:
-      oracle-db:
+      postgres-db:
         condition: service_healthy
     networks:
       - photoalbum-network
     restart: on-failure
 
 volumes:
-  oracle_data:
+  postgres_data:
 
 networks:
   photoalbum-network:
