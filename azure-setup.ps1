@@ -9,6 +9,19 @@ $NC = "`e[0m" # No Color
 Write-Host "${GREEN}=== Azure Photo Album Resources Setup ===${NC}" -NoNewline
 Write-Host ""
 
+# Generates a strong random password using a cryptographic RNG.
+# Excludes quote/backslash characters so the value is safe to embed in SQL
+# and shell/env contexts.
+function New-StrongPassword {
+    param([int]$Length = 24)
+    $alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!#%*+-_=.'
+    $bytes = New-Object 'System.Byte[]' $Length
+    $rng = [System.Security.Cryptography.RandomNumberGenerator]::Create()
+    try { $rng.GetBytes($bytes) } finally { $rng.Dispose() }
+    $chars = foreach ($b in $bytes) { $alphabet[$b % $alphabet.Length] }
+    -join $chars
+}
+
 # Variables
 $RANDOM_SUFFIX = -join ((1..3) | ForEach-Object { '{0:x}' -f (Get-Random -Maximum 256) })
 $RESOURCE_GROUP = "photo-album-resources-${RANDOM_SUFFIX}"
@@ -17,11 +30,15 @@ $ACR_NAME = "photoalbumacr$(Get-Random -Maximum 99999)"
 $AKS_NODE_VM_SIZE = "Standard_D8ds_v5"
 $POSTGRES_SERVER_NAME = "$RESOURCE_GROUP-postgresql"
 $PostgreSQL_SKU = "Standard_D4ads_v5"
-$POSTGRES_ADMIN_USER="photoalbum_admin"
-$POSTGRES_ADMIN_PASSWORD="P@ssw0rd123!"
 $POSTGRES_DATABASE_NAME="photoalbum"
-$POSTGRES_APP_USER="photoalbum"
-$POSTGRES_APP_PASSWORD="photoalbum"
+
+# Credentials are NOT hard-coded. They are taken from environment variables
+# when provided, otherwise a strong random password is generated per run.
+# The generated values are written only to the git-ignored .env file below.
+$POSTGRES_ADMIN_USER = if ($env:POSTGRES_ADMIN_USER) { $env:POSTGRES_ADMIN_USER } else { "photoalbum_admin" }
+$POSTGRES_ADMIN_PASSWORD = if ($env:POSTGRES_ADMIN_PASSWORD) { $env:POSTGRES_ADMIN_PASSWORD } else { New-StrongPassword }
+$POSTGRES_APP_USER = if ($env:POSTGRES_APP_USER) { $env:POSTGRES_APP_USER } else { "photoalbum" }
+$POSTGRES_APP_PASSWORD = if ($env:POSTGRES_APP_PASSWORD) { $env:POSTGRES_APP_PASSWORD } else { New-StrongPassword }
 
 Write-Host "${YELLOW}Using default subscription...${NC}" -NoNewline
 Write-Host ""
@@ -192,7 +209,7 @@ try {
         --admin-user "$POSTGRES_ADMIN_USER" `
         --admin-password "$POSTGRES_ADMIN_PASSWORD" `
         --database-name "postgres" `
-        --querytext "CREATE USER photoalbum WITH PASSWORD 'photoalbum';"
+        --querytext "CREATE USER $POSTGRES_APP_USER WITH PASSWORD '$POSTGRES_APP_PASSWORD';"
 } catch {
     Write-Host "${YELLOW}User may already exist, continuing...${NC}" -NoNewline
     Write-Host ""
@@ -295,11 +312,11 @@ Write-Host "AKS Cluster: $RESOURCE_GROUP-aks"
 Write-Host "PostgreSQL Server: $POSTGRES_SERVER_NAME"
 Write-Host "Location: $LOCATION"
 Write-Host ""
-Write-Host "${GREEN}PostgreSQL Connection Details (stored in environment variables and .env file):${NC}" -NoNewline
+Write-Host "${GREEN}PostgreSQL Connection Details (stored in the git-ignored .env file):${NC}" -NoNewline
 Write-Host ""
 Write-Host "POSTGRES_SERVER: $env:POSTGRES_SERVER"
 Write-Host "POSTGRES_USER: $env:POSTGRES_USER"
-Write-Host "POSTGRES_PASSWORD: $env:POSTGRES_PASSWORD"
+Write-Host "POSTGRES_PASSWORD: ******** (see .env file)"
 Write-Host "POSTGRES_CONNECTION_STRING: $env:POSTGRES_CONNECTION_STRING"
 Write-Host ""
 Write-Host "${GREEN}All configuration has been saved to .env file in the project root.${NC}" -NoNewline

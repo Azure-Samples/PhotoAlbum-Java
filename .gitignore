@@ -198,6 +198,11 @@ __pycache__/
 # tools/**
 # !tools/packages.config
 
+# Local environment / secrets (never commit real credentials)
+.env
+.env.*
+!.env.example
+
 # Tabs Studio
 *.tss
 

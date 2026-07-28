@@ -4,9 +4,9 @@ services:
     image: gvenzl/oracle-free:latest
     container_name: photoalbum-oracle
     environment:
-      - ORACLE_PASSWORD=photoalbum
-      - APP_USER=photoalbum
-      - APP_USER_PASSWORD=photoalbum
+      - ORACLE_PASSWORD=${ORACLE_PASSWORD:?ORACLE_PASSWORD must be set (copy .env.example to .env)}
+      - APP_USER=${APP_USER:-photoalbum}
+      - APP_USER_PASSWORD=${APP_USER_PASSWORD:?APP_USER_PASSWORD must be set (copy .env.example to .env)}
     ports:
       - "1521:1521"
     volumes:
@@ -30,8 +30,8 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@oracle-db:1521/FREEPDB1
-      - SPRING_DATASOURCE_USERNAME=photoalbum
-      - SPRING_DATASOURCE_PASSWORD=photoalbum
+      - SPRING_DATASOURCE_USERNAME=${APP_USER:-photoalbum}
+      - SPRING_DATASOURCE_PASSWORD=${APP_USER_PASSWORD:?APP_USER_PASSWORD must be set (copy .env.example to .env)}
     ports:
       - "8080:8080"
     depends_on:

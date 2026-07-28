@@ -1,15 +1,18 @@
--- This script runs automatically when Oracle XE container starts
--- It creates the photoalbum user and grants necessary privileges
+-- This script runs automatically when the Oracle container starts.
+--
+-- The application schema user is created by the container itself from the
+-- APP_USER / APP_USER_PASSWORD environment variables (see docker-compose.yml
+-- and .env). Credentials are intentionally NOT hard-coded here.
+--
+-- This script only grants the least set of schema-scoped privileges the
+-- application (Hibernate with ddl-auto=create) needs to manage its own
+-- objects. It deliberately does NOT grant DBA or any system-wide "ANY"
+-- privileges.
 
 ALTER SESSION SET "_ORACLE_SCRIPT"=true;
 
--- Create photoalbum user
-CREATE USER photoalbum IDENTIFIED BY photoalbum;
-
--- Grant system privileges
-GRANT CONNECT TO photoalbum;
-GRANT RESOURCE TO photoalbum;
-GRANT DBA TO photoalbum;
+-- Least-privilege grants for the application schema user.
+-- NOTE: keep this user name in sync with APP_USER in docker-compose.yml / .env.
 GRANT CREATE SESSION TO photoalbum;
 GRANT CREATE TABLE TO photoalbum;
 GRANT CREATE SEQUENCE TO photoalbum;
@@ -18,13 +21,9 @@ GRANT CREATE PROCEDURE TO photoalbum;
 GRANT CREATE TRIGGER TO photoalbum;
 GRANT CREATE TYPE TO photoalbum;
 GRANT CREATE SYNONYM TO photoalbum;
-GRANT UNLIMITED TABLESPACE TO photoalbum;
 
--- Grant object privileges needed by Hibernate
-GRANT SELECT ANY DICTIONARY TO photoalbum;
-GRANT CREATE ANY INDEX TO photoalbum;
-GRANT ALTER ANY INDEX TO photoalbum;
-GRANT DROP ANY INDEX TO photoalbum;
+-- Allow the user to store objects in its default tablespace.
+ALTER USER photoalbum QUOTA UNLIMITED ON USERS;
 
 -- Set default and temporary tablespace
 ALTER USER photoalbum DEFAULT TABLESPACE USERS;
