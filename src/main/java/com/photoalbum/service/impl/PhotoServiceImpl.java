@@ -12,10 +12,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -28,6 +30,9 @@ import java.util.UUID;
 public class PhotoServiceImpl implements PhotoService {
 
     private static final Logger logger = LoggerFactory.getLogger(PhotoServiceImpl.class);
+
+    // Maximum decoded image size (pixels) to prevent decompression-bomb DoS (CWE-400).
+    private static final long MAX_IMAGE_PIXELS = 40_000_000L;
 
     private final PhotoRepository photoRepository;
     private final long maxFileSizeBytes;
@@ -118,12 +123,28 @@ public class PhotoServiceImpl implements PhotoService {
                 // Read file content for database storage
                 photoData = file.getBytes();
                 
-                // Extract image dimensions from byte array
-                try (ByteArrayInputStream bis = new ByteArrayInputStream(photoData)) {
-                    BufferedImage image = ImageIO.read(bis);
-                    if (image != null) {
-                        width = image.getWidth();
-                        height = image.getHeight();
+                // Read image dimensions from the header only (no full decode) and
+                // enforce a maximum pixel count to prevent decompression-bomb DoS
+                // (CWE-400). ImageIO.read() would fully decode attacker-controlled
+                // bytes and can exhaust the JVM heap.
+                try (ImageInputStream iis = ImageIO.createImageInputStream(new ByteArrayInputStream(photoData))) {
+                    Iterator<ImageReader> readers = (iis == null) ? null : ImageIO.getImageReaders(iis);
+                    if (readers != null && readers.hasNext()) {
+                        ImageReader reader = readers.next();
+                        try {
+                            reader.setInput(iis, true, true);
+                            int w = reader.getWidth(0);
+                            int h = reader.getHeight(0);
+                            if ((long) w * (long) h > MAX_IMAGE_PIXELS) {
+                                result.setSuccess(false);
+                                result.setErrorMessage("Image dimensions exceed the allowed limit.");
+                                return result;
+                            }
+                            width = w;
+                            height = h;
+                        } finally {
+                            reader.dispose();
+                        }
                     }
                 }
             } catch (IOException ex) {

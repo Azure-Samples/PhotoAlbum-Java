@@ -32,6 +32,8 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@oracle-db:1521/FREEPDB1
       - SPRING_DATASOURCE_USERNAME=${APP_USER:-photoalbum}
       - SPRING_DATASOURCE_PASSWORD=${APP_USER_PASSWORD:?APP_USER_PASSWORD must be set (copy .env.example to .env)}
+      - APP_ADMIN_USERNAME=${APP_ADMIN_USERNAME:-admin}
+      - APP_ADMIN_PASSWORD=${APP_ADMIN_PASSWORD:?APP_ADMIN_PASSWORD must be set (copy .env.example to .env)}
     ports:
       - "8080:8080"
     depends_on:
