@@ -1,0 +1,47 @@
+{
+  "migration_id": "localhost_20251110_164346",
+  "generated_at": "2025-11-10T16:43:46.032575",
+  "source_project": "c:\\Users\\rujche\\Work\\git-repositories\\main\\PhotoAlbum-Java\\.github\\postgres-migrations\\localhost",
+  "coding_notes": [
+    {
+      "id": "cn_001",
+      "category": "data_type_changes",
+      "object": "All numeric columns",
+      "summary": "Oracle NUMBER types converted to PostgreSQL equivalents",
+      "impact": "medium",
+      "oracle_pattern": "NUMBER(precision, scale)",
+      "postgres_pattern": "BIGINT, DECIMAL, or NUMERIC",
+      "application_changes": [
+        "Review entity classes for data type compatibility",
+        "Update API documentation with new data types",
+        "Verify that existing data fits in new type ranges"
+      ],
+      "code_examples": {
+        "java_entity": {
+          "before": "@Column(name = \"amount\")\nprivate Integer amount;",
+          "after": "@Column(name = \"amount\")\nprivate Long amount;"
+        }
+      }
+    },
+    {
+      "id": "cn_002",
+      "category": "sql_syntax_changes",
+      "object": "Sequence usage",
+      "summary": "Oracle sequence syntax converted to PostgreSQL SERIAL or IDENTITY",
+      "impact": "low",
+      "oracle_pattern": "sequence_name.NEXTVAL",
+      "postgres_pattern": "SERIAL or IDENTITY columns",
+      "application_changes": [
+        "Remove explicit sequence calls in INSERT statements",
+        "Update ORM mappings for auto-generated IDs",
+        "Verify ID generation in application tests"
+      ],
+      "code_examples": {
+        "sql": {
+          "before": "INSERT INTO employees (id, name) VALUES (emp_seq.NEXTVAL, 'John')",
+          "after": "INSERT INTO employees (name) VALUES ('John') -- ID auto-generated"
+        }
+      }
+    }
+  ]
+}
