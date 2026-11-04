@@ -16,7 +16,7 @@ A photo gallery application built with Spring Boot and Oracle Database, featurin
 
 ## Technology Stack
 
-- **Framework**: Spring Boot 2.7.18 (Java 8)
+- **Framework**: Spring Boot 4.1.2 (Java 25)
 - **Database**: Oracle Database 21c Express Edition
 - **Templating**: Thymeleaf
 - **Build Tool**: Maven
@@ -73,8 +73,8 @@ A photo gallery application built with Spring Boot and Oracle Database, featurin
 
 ## Photo Album Java Application
 - **Port**: `8080` (mapped to host port 8080)
-- **Framework**: Spring Boot 2.7.18
-- **Java Version**: 8
+- **Framework**: Spring Boot 4.1.2
+- **Java Version**: 25
 - **Database**: Connects to Oracle container
 - **Photo Storage**: All photos stored as BLOBs in database (no file system storage)
 - **UUID System**: Each photo gets a globally unique identifier for cache-busting

@@ -1,5 +1,5 @@
-# Use Maven with OpenJDK 8 for building
-FROM maven:3.9.6-eclipse-temurin-8 AS build
+# Build with Maven and Java 25
+FROM maven:3.9.11-eclipse-temurin-25 AS build
 
 WORKDIR /app
 
@@ -13,8 +13,8 @@ COPY src ./src
 # Build the application
 RUN mvn clean package -DskipTests
 
-# Use OpenJDK 8 runtime for the final image
-FROM eclipse-temurin:8-jre
+# Use Java 25 runtime for the final image
+FROM eclipse-temurin:25-jre
 
 WORKDIR /app
 
